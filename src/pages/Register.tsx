@@ -1,10 +1,32 @@
-import {useNavigate} from "react-router-dom"
+import {useNavigate} from "react-router-dom";
+import {useState} from "react";
+import { registerUser } from "../services/Auth";
 
 export default function Register() {
 
    const navigate = useNavigate();
    const navigateToLogin = () => {
      navigate('/login');
+   }
+
+   const [form,setForm] = useState({
+     email: "",
+     username: "",
+     displayName: "",
+     password: "",
+     gender: undefined,
+     date_of_birth: "",
+   })
+
+   const handleSubmit = (e: React.FormEvent) =>{
+     e.preventDefault();
+     registerUser(form)
+       .then(() => {
+         navigateToLogin();
+       })
+       .catch((error) => {
+         console.error("Registration failed:", error);
+       });
    }
 
   return (
@@ -32,6 +54,8 @@ export default function Register() {
             <input
               type="email"
               placeholder="you@example.com"
+              value={form.email}
+              onChange={(e) => setForm({ ...form, email: e.target.value })}
               className="w-full rounded-lg border px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-black"
             />
           </div>
@@ -44,6 +68,8 @@ export default function Register() {
             <input
               type="text"
               placeholder="your-pen-name"
+              value={form.username}
+              onChange={(e) => setForm({ ...form, username: e.target.value })} 
               className="w-full rounded-lg border px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-black"
             />
           </div>
@@ -56,6 +82,8 @@ export default function Register() {
             <input
               type="text"
               placeholder="What others see"
+              value={form.displayName}
+              onChange={(e) => setForm({ ...form, displayName: e.target.value })}
               className="w-full rounded-lg border px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-black"
             />
           </div>
@@ -79,12 +107,13 @@ export default function Register() {
                 Gender
               </label>
               <select
+                value={form.gender}
+                onChange={(e) => setForm({ ...form, gender: e.target.value === ""? undefined : e.target.value })}
                 className="w-full rounded-lg border px-4 py-3 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-black"
               >
-                <option value="">Prefer not to say</option>
                 <option value="MALE">Male</option>
                 <option value="FEMALE">Female</option>
-                <option value="OTHER">Other</option>
+                <option value="PREFER_NOT_TO_SAY">Prefer not to say</option>
               </select>
             </div>
 
@@ -94,6 +123,8 @@ export default function Register() {
               </label>
               <input
                 type="date"
+                value={form.date_of_birth}
+                onChange={(e) => setForm({ ...form, date_of_birth: e.target.value })}
                 className="w-full rounded-lg border px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-black"
               />
             </div>
@@ -102,6 +133,7 @@ export default function Register() {
           {/* Submit */}
           <button
             type="submit"
+            onClick={handleSubmit}
             className="w-full mt-6 rounded-full bg-black text-white px-6 py-3 text-sm hover:opacity-90 transition"
           >
             Create my diary
