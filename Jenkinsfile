@@ -1,5 +1,10 @@
 pipeline {
-    agent any
+    agent {
+        docker {
+            image 'node:20-alpine'
+            args '-v /var/run/docker.sock:/var/run/docker.sock'
+        }
+    }
 
     environment {
         DOCKER_REGISTRY = "jatindocker623"
@@ -11,6 +16,7 @@ pipeline {
         stage('Install & Build') {
             steps {
                 sh 'node -v'
+                sh 'npm -v'
                 sh 'npm install'
                 sh 'npm run build'
             }
@@ -18,12 +24,9 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                script {
-                    def tag = "1.0.0-SNAPSHOT"
-                    sh """
-                        docker build -t ${DOCKER_REGISTRY}/${IMAGE_NAME}:${tag} .
-                    """
-                }
+                sh """
+                  docker build -t ${DOCKER_REGISTRY}/${IMAGE_NAME}:latest .
+                """
             }
         }
 
@@ -35,9 +38,9 @@ pipeline {
                     passwordVariable: 'DOCKER_PASS'
                 )]) {
                     sh """
-                        echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
-                        docker push ${DOCKER_REGISTRY}/${IMAGE_NAME}:latest
-                        docker logout
+                      echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                      docker push ${DOCKER_REGISTRY}/${IMAGE_NAME}:latest
+                      docker logout
                     """
                 }
             }
