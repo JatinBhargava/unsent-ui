@@ -3,7 +3,7 @@ pipeline {
 
   environment {
     IMAGE_NAME = "jatindocker623/unsent-ui"
-    IMAGE_TAG  = "latest"
+    IMAGE_TAG  = "1.0.0-SNAPSHOT"
   }
 
   stages {
