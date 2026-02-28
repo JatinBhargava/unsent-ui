@@ -1,7 +1,10 @@
+import Navbar from "../components/Navbar";
+
 export default function WinOfTheDay() {
   return (
     <div className="min-h-screen bg-[#fafafa] px-6 py-14 flex justify-center">
       <div className="w-full max-w-4xl">
+        <Navbar />
 
         {/* Page Header */}
         <header className="text-center mb-14">
@@ -20,8 +23,8 @@ export default function WinOfTheDay() {
           </p>
 
           <blockquote className="text-2xl leading-relaxed font-light text-gray-900">
-            “I stopped waiting for an apology I was never going to get.
-            That’s when things finally felt lighter.”
+            “I stopped waiting for an apology I was never going to get. That’s
+            when things finally felt lighter.”
           </blockquote>
 
           <div className="mt-8 flex justify-between items-center text-xs text-gray-400">
@@ -32,9 +35,7 @@ export default function WinOfTheDay() {
 
         {/* MORE MOMENTS */}
         <section>
-          <h2 className="text-lg font-medium mb-6">
-            Other moments today
-          </h2>
+          <h2 className="text-lg font-medium mb-6">Other moments today</h2>
 
           <div className="grid gap-6 md:grid-cols-2">
             {[1, 2, 3, 4].map((item) => (
@@ -43,8 +44,8 @@ export default function WinOfTheDay() {
                 className="bg-white border rounded-2xl p-6 hover:shadow-sm transition"
               >
                 <p className="text-gray-700 text-sm leading-relaxed line-clamp-4">
-                  “Some days I write just to prove that I survived them.
-                  Today was one of those days.”
+                  “Some days I write just to prove that I survived them. Today
+                  was one of those days.”
                 </p>
 
                 <div className="mt-4 text-xs text-gray-400 flex justify-between">
@@ -55,7 +56,6 @@ export default function WinOfTheDay() {
             ))}
           </div>
         </section>
-
       </div>
     </div>
   );

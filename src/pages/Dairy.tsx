@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import Navbar from "../components/Navbar";
 
 export default function Diaries() {
   const navigate = useNavigate();
@@ -10,6 +11,7 @@ export default function Diaries() {
   return (
     <div className="min-h-screen bg-[#fafafa] px-6 py-12 flex justify-center">
       <div className="w-full max-w-5xl">
+        <Navbar/>
 
         {/* Header */}
         <header className="mb-12 text-center">
