@@ -1,4 +1,6 @@
+import { useState } from "react";
 import {useNavigate} from "react-router-dom"
+import { loginUser } from "../services/Auth";
 
 export default function Login() {
 
@@ -6,6 +8,26 @@ export default function Login() {
   const navigateToRegistration = () => {
     navigate('/register');
   }
+
+  const navigateToDiaries = () => {
+    navigate('/diaries');
+  }
+
+  const [form, setForm] = useState({
+    email: "",
+    password: "",
+  });
+
+  const handleLogin = (e: React.FormEvent) => {
+      e.preventDefault();
+      loginUser(form)
+          .then(() => {
+             navigateToDiaries();
+          })
+          .catch((error) => {
+              console.error("Login failed:", error);
+          });
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#fafafa] px-6">
@@ -50,6 +72,8 @@ export default function Login() {
             <input
               type="text"
               placeholder="yourname"
+              value={form.email}
+              onChange={(e) => setForm({ ...form, email: e.target.value })}
               className="w-full rounded-lg border px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-black"
             />
           </div>
@@ -61,12 +85,15 @@ export default function Login() {
             <input
               type="password"
               placeholder="••••••••"
+              value={form.password}
+              onChange={(e) => setForm({ ...form, password: e.target.value })}
               className="w-full rounded-lg border px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-black"
             />
           </div>
 
           <button
             type="submit"
+            onClick={handleLogin}
             className="w-full mt-2 rounded-full bg-black text-white px-6 py-3 text-sm hover:opacity-90 transition"
           >
             Open diary
