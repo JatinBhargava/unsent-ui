@@ -1,8 +1,10 @@
 import type { LoginRequest } from "../types/LoginRequest";
 import type { RegisterRequest } from "../types/RegisterRequest";
 
+const baseurl = 'https://unsent-api-1-0-0-snapshot.onrender.com';
+
 export async function registerUser(formData: RegisterRequest) {
-  const response = await fetch("http://localhost:8080/auth/register", {
+  const response = await fetch(`${baseurl}/auth/register`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -16,7 +18,7 @@ export async function registerUser(formData: RegisterRequest) {
 }
 
 export async function loginUser(formData: LoginRequest) {
-  const response = await fetch("http://localhost:8080/auth/login", {
+  const response = await fetch(`${baseurl}/auth/login`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
