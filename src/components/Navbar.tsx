@@ -23,10 +23,12 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="flex items-center justify-between px-10 py-6">
-      <h1 className="text-xl font-semibold tracking-tight">Unsent</h1>
+    <nav className="flex items-center justify-between px-4 sm:px-6 md:px-10 py-4 sm:py-6">
+      <h1 className="text-lg sm:text-xl font-semibold tracking-tight">
+        Unsent
+      </h1>
 
-      <div className="flex items-center gap-6 text-sm">
+      <div className="flex items-center gap-3 sm:gap-4 md:gap-6 text-xs sm:text-sm">
         <a
           onClick={navigateToWinOfTheDay}
           className="hover:opacity-70 cursor-pointer"
