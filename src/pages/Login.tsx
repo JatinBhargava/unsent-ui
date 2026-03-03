@@ -37,14 +37,14 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#fafafa] px-6">
-      <div className="w-full max-w-md text-center">
+    <div className="min-h-screen flex items-center justify-center bg-[#fafafa] px-4 sm:px-6">
+      <div className="w-full max-w-xs sm:max-w-md text-center">
         {/* Heading */}
-        <h1 className="text-4xl font-semibold leading-tight">
+        <h1 className="text-2xl sm:text-4xl font-semibold leading-tight">
           Open your <span className="italic">diary</span>
         </h1>
 
-        <p className="mt-4 text-gray-600 text-sm">
+        <p className="mt-4 text-gray-600 text-xs sm:text-sm">
           A space for people who love to write. Read others. Add a page. Or keep
           it just yours.
         </p>

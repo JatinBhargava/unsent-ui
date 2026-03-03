@@ -1,7 +1,7 @@
 export default function Hero() {
   return (
-    <section className="flex flex-col items-center text-center mt-24 px-6">
-      <h1 className="text-5xl font-semibold leading-tight max-w-4xl">
+    <section className="flex flex-col items-center text-center mt-12 sm:mt-16 md:mt-24 px-4 sm:px-6">
+      <h1 className="text-2xl sm:text-4xl md:text-5xl font-semibold leading-tight max-w-4xl">
         Write what you never meant to send.
         <br />
         <span className="italic text-gray-700">
@@ -9,10 +9,10 @@ export default function Hero() {
         </span>
       </h1>
 
-      <p className="mt-6 text-gray-600 max-w-2xl text-lg">
-        Unsent is a shared diary for people who love to write.  
-        Keep your pages personal, or invite others to read and add their own —
-        like a quiet blog written together, one diary page at a time.
+      <p className="mt-4 sm:mt-6 text-gray-600 max-w-2xl text-sm sm:text-base md:text-lg">
+        Unsent is a shared diary for people who love to write. Keep your pages
+        personal, or invite others to read and add their own — like a quiet blog
+        written together, one diary page at a time.
       </p>
 
       <div className="mt-10 flex flex-col sm:flex-row gap-4">

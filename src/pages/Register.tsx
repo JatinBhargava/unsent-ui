@@ -29,14 +29,14 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#fafafa] px-6">
-      <div className="w-full max-w-lg text-center">
+    <div className="min-h-screen flex items-center justify-center bg-[#fafafa] px-4 sm:px-6">
+      <div className="w-full max-w-xs sm:max-w-md md:max-w-lg text-center">
         {/* Heading */}
-        <h1 className="text-4xl font-semibold leading-tight">
+        <h1 className="text-2xl sm:text-4xl font-semibold leading-tight">
           Start a new <span className="italic">diary</span>
         </h1>
 
-        <p className="mt-4 text-gray-600 text-sm max-w-md mx-auto">
+        <p className="mt-4 text-gray-600 text-xs sm:text-sm max-w-md mx-auto">
           Create a space to write freely. Stay anonymous, or let others read and
           add pages to your diary.
         </p>
@@ -96,7 +96,7 @@ export default function Register() {
           </div>
 
           {/* Gender + DOB */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs text-gray-500 mb-1">Gender</label>
               <select
