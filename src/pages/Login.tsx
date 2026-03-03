@@ -1,11 +1,14 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { loginUser } from "../services/Auth";
+import { useAuth } from "../contexts/AuthContext";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 export default function Login() {
   const navigate = useNavigate();
+  const { login } = useAuth();
+
   const navigateToRegistration = () => {
     navigate("/register");
   };
@@ -22,7 +25,10 @@ export default function Login() {
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     loginUser(form)
-      .then(() => {
+      .then((response) => {
+        // Store the token from the response
+        const token = response.token || response.accessToken;
+        login(token);
         navigateToDiaries();
       })
       .catch((error) => {
@@ -47,8 +53,7 @@ export default function Login() {
         <div className="mt-8 space-y-3">
           <button
             onClick={() => {
-              window.location.href =
-                `${API_BASE_URL}/oauth2/authorization/google`;
+              window.location.href = `${API_BASE_URL}/oauth2/authorization/google`;
             }}
             className="w-full flex items-center justify-center gap-3 rounded-full border px-5 py-3 text-sm hover:bg-gray-100 transition"
           >
