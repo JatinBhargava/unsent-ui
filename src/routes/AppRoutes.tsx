@@ -4,6 +4,7 @@ import Register from "../pages/Register";
 import Login from "../pages/Login";
 import Diaries from "../pages/Dairy";
 import WinOfTheDay from "../pages/WinOfTheDay";
+import WritePage from "../pages/WritePage";
 import { AuthProvider } from "../contexts/AuthContext";
 
 export default function AppRoutes() {
@@ -15,6 +16,7 @@ export default function AppRoutes() {
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
           <Route path="/diaries" element={<Diaries />} />
+          <Route path="/write" element={<WritePage />} />
           <Route path="/wod" element={<WinOfTheDay />} />
         </Routes>
       </AuthProvider>
