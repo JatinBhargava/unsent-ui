@@ -1,10 +1,11 @@
 import type { LoginRequest } from "../types/LoginRequest";
 import type { RegisterRequest } from "../types/RegisterRequest";
 
-const baseurl = 'https://unsent-api-1-0-0-snapshot.onrender.com';
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:8081";
 
 export async function registerUser(formData: RegisterRequest) {
-  const response = await fetch(`${baseurl}/auth/register`, {
+  const response = await fetch(`${API_BASE_URL}/auth/register`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -18,7 +19,7 @@ export async function registerUser(formData: RegisterRequest) {
 }
 
 export async function loginUser(formData: LoginRequest) {
-  const response = await fetch(`${baseurl}/auth/login`, {
+  const response = await fetch(`${API_BASE_URL}/auth/login`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

@@ -1,17 +1,25 @@
 import { useState } from "react";
-import {useNavigate} from "react-router-dom"
+import { useNavigate } from "react-router-dom";
 import { loginUser } from "../services/Auth";
+import { useAuth } from "../contexts/AuthContext";
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 export default function Login() {
-
   const navigate = useNavigate();
+  const { login } = useAuth();
+
   const navigateToRegistration = () => {
-    navigate('/register');
-  }
+    navigate("/register");
+  };
 
   const navigateToDiaries = () => {
-    navigate('/diaries');
-  }
+    navigate("/diaries");
+  };
+
+  const navigateToHome = () => {
+    navigate("/");
+  };
 
   const [form, setForm] = useState({
     email: "",
@@ -19,33 +27,48 @@ export default function Login() {
   });
 
   const handleLogin = (e: React.FormEvent) => {
-      e.preventDefault();
-      loginUser(form)
-          .then(() => {
-             navigateToDiaries();
-          })
-          .catch((error) => {
-              console.error("Login failed:", error);
-          });
+    e.preventDefault();
+    loginUser(form)
+      .then((response) => {
+        // Store the token from the response
+        const token = response.token || response.accessToken;
+        login(token);
+        navigateToDiaries();
+      })
+      .catch((error) => {
+        console.error("Login failed:", error);
+      });
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#fafafa] px-6">
-      <div className="w-full max-w-md text-center">
+    <div className="min-h-screen flex items-center justify-center bg-[#fafafa] px-4 sm:px-6">
+      <div className="w-full max-w-xs sm:max-w-md text-center">
+        {/* Back to Home Button */}
+        <button
+          onClick={navigateToHome}
+          className="mb-6 text-xs sm:text-sm text-gray-600 hover:text-black underline transition"
+        >
+          ← Back to Home
+        </button>
 
         {/* Heading */}
-        <h1 className="text-4xl font-semibold leading-tight">
+        <h1 className="text-2xl sm:text-4xl font-semibold leading-tight">
           Open your <span className="italic">diary</span>
         </h1>
 
-        <p className="mt-4 text-gray-600 text-sm">
-          A space for people who love to write.
-          Read others. Add a page. Or keep it just yours.
+        <p className="mt-4 text-gray-600 text-xs sm:text-sm">
+          A space for people who love to write. Read others. Add a page. Or keep
+          it just yours.
         </p>
 
         {/* OAuth */}
         <div className="mt-8 space-y-3">
-          <button className="w-full flex items-center justify-center gap-3 rounded-full border px-5 py-3 text-sm hover:bg-gray-100 transition">
+          <button
+            onClick={() => {
+              window.location.href = `${API_BASE_URL}/oauth2/authorization/google`;
+            }}
+            className="w-full flex items-center justify-center gap-3 rounded-full border px-5 py-3 text-sm hover:bg-gray-100 transition"
+          >
             <img src="src/assets/google.png" alt="Google" className="h-4 w-4" />
             Continue with Google
           </button>
@@ -79,9 +102,7 @@ export default function Login() {
           </div>
 
           <div>
-            <label className="block text-xs text-gray-500 mb-1">
-              Password
-            </label>
+            <label className="block text-xs text-gray-500 mb-1">Password</label>
             <input
               type="password"
               placeholder="••••••••"
@@ -103,7 +124,10 @@ export default function Login() {
         {/* Footer actions */}
         <div className="mt-8 text-sm text-gray-500">
           New here?{" "}
-          <button className="underline hover:text-black transition" onClick={navigateToRegistration}>
+          <button
+            className="underline hover:text-black transition"
+            onClick={navigateToRegistration}
+          >
             Start a new diary
           </button>
         </div>
