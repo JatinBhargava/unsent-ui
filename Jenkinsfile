@@ -6,15 +6,25 @@ pipeline {
     IMAGE_TAG  = "1.0.0-SNAPSHOT"
   }
 
+  options {
+    buildDiscarder(logRotator(numToKeepStr: '10'))
+  }
+
   stages {
 
     stage('Checkout') {
+      when {
+        expression { shouldRun('checkout') }
+      }
       steps {
         checkout scm
       }
     }
 
     stage('Install & Build UI') {
+      when {
+        expression { shouldRun('build') }
+      }
       agent {
         docker {
           image 'node:20-alpine'
@@ -31,7 +41,10 @@ pipeline {
       }
     }
 
-    stage('Build & Push Docker Image (amd64)') {
+    stage('Build & Push Docker Image') {
+      when {
+        expression { shouldRun('docker') }
+      }
       steps {
         withCredentials([usernamePassword(
           credentialsId: 'dockerhub-creds',
@@ -55,10 +68,45 @@ pipeline {
 
   post {
     success {
-      echo "Frontend CI SUCCESS ✅"
+      script {
+        switch(env.BRANCH_NAME) {
+          case ~/feature\/.*/: {
+            echo "Feature Branch Build SUCCESS ✅ (Build only)"
+            break
+          }
+          case 'develop':
+          case 'master':
+          case 'main': {
+            echo "CI/CD Pipeline SUCCESS ✅ (Build + Docker Publish)"
+            break
+          }
+          default: {
+            echo "Pipeline SUCCESS ✅"
+          }
+        }
+      }
     }
     failure {
-      echo "Frontend CI FAILED ❌"
+      echo "Pipeline FAILED ❌"
     }
+  }
+}
+
+def shouldRun(String stage) {
+  switch (true) {
+    case env.BRANCH_NAME?.startsWith("feature/"):
+      return ["checkout", "build"].contains(stage)
+
+    case env.BRANCH_NAME == "develop":
+      return ["checkout", "build", "docker"].contains(stage)
+
+    case env.BRANCH_NAME == "master":
+      return ["checkout", "build", "docker"].contains(stage)
+
+    case env.BRANCH_NAME == "main":
+      return ["checkout", "build", "docker"].contains(stage)
+
+    default:
+      return false
   }
 }
