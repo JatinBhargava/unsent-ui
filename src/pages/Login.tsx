@@ -17,6 +17,10 @@ export default function Login() {
     navigate("/diaries");
   };
 
+  const navigateToHome = () => {
+    navigate("/");
+  };
+
   const [form, setForm] = useState({
     email: "",
     password: "",
@@ -39,6 +43,14 @@ export default function Login() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#fafafa] px-4 sm:px-6">
       <div className="w-full max-w-xs sm:max-w-md text-center">
+        {/* Back to Home Button */}
+        <button
+          onClick={navigateToHome}
+          className="mb-6 text-xs sm:text-sm text-gray-600 hover:text-black underline transition"
+        >
+          ← Back to Home
+        </button>
+
         {/* Heading */}
         <h1 className="text-2xl sm:text-4xl font-semibold leading-tight">
           Open your <span className="italic">diary</span>
