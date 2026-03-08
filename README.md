@@ -107,7 +107,7 @@ The repository already includes a GitHub Actions workflow that:
 
 This gives the project a solid base for production deployment and team-style delivery practices.
 
-## Resume-Worthy Engineering Direction
+## Engineering Direction
 
 The project already shows full-stack separation, frontend-backend integration, CI automation, and containerization. To make it even stronger for portfolio and resume use, the next upgrades should focus on production readiness:
 
