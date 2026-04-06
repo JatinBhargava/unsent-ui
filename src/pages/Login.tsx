@@ -1,13 +1,17 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { loginUser } from "../services/Auth";
 import { useAuth } from "../contexts/AuthContext";
+import { getOauthBaseUrl } from "../config/api";
+import googleIcon from "../assets/google.png";
+import githubIcon from "../assets/github.png";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const OAUTH_BASE_URL = getOauthBaseUrl();
 
 export default function Login() {
   const navigate = useNavigate();
   const { login } = useAuth();
+  const [searchParams] = useSearchParams();
 
   const navigateToRegistration = () => {
     navigate("/register");
@@ -25,6 +29,16 @@ export default function Login() {
     email: "",
     password: "",
   });
+
+  useEffect(() => {
+    const oauthToken = searchParams.get("token");
+    if (!oauthToken) {
+      return;
+    }
+
+    login(oauthToken);
+    navigate("/diaries", { replace: true });
+  }, [searchParams, login, navigate]);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -65,17 +79,17 @@ export default function Login() {
         <div className="mt-8 space-y-3">
           <button
             onClick={() => {
-              window.location.href = `${API_BASE_URL}/oauth2/authorization/google`;
+              window.location.href = `${OAUTH_BASE_URL}/oauth2/authorization/google?prompt=select_account`;
             }}
             className="w-full flex items-center justify-center gap-3 rounded-full border px-5 py-3 text-sm hover:bg-gray-100 transition"
           >
-            <img src="src/assets/google.png" alt="Google" className="h-4 w-4" />
+            <img src={googleIcon} alt="Google" className="h-4 w-4" />
             Continue with Google
           </button>
 
           <button className="w-full flex items-center justify-center gap-3 rounded-full border px-5 py-3 text-sm hover:bg-gray-100 transition">
-            <img src="src/assets/github.png" alt="GitHub" className="h-4 w-4" />
-            Continue with GitHub
+            <img src={githubIcon} alt="GitHub" className="h-4 w-4" />
+            Continue with GitHub (soon)
           </button>
         </div>
 

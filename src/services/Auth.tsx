@@ -1,8 +1,8 @@
 import type { LoginRequest } from "../types/LoginRequest";
 import type { RegisterRequest } from "../types/RegisterRequest";
+import { getApiBaseUrl } from "../config/api";
 
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "http://localhost:8081";
+const API_BASE_URL = getApiBaseUrl();
 
 export async function registerUser(formData: RegisterRequest) {
   const response = await fetch(`${API_BASE_URL}/auth/register`, {
