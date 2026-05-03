@@ -43,8 +43,8 @@ It is built with React, TypeScript, Vite, and Tailwind CSS, and connects to the 
 
 This frontend is designed to work with the backend service in `unsent-core`.
 
-- Default backend URL: `http://localhost:8081`
-- Configurable via: `VITE_API_BASE_URL`
+- Backend URL is configured via environment variables
+- Required vars: `VITE_API_BASE_URL`, `VITE_OAUTH_REDIRECT_URL`
 - Current integration points:
   - `POST /auth/register`
   - `POST /auth/login`
@@ -70,10 +70,11 @@ npm install
 
 ### 3. Create environment configuration
 
-Create a `.env` file in the frontend root:
+Create a `.env` file in the frontend root (or copy from `.env.example`):
 
 ```env
-VITE_API_BASE_URL=http://localhost:8081
+VITE_API_BASE_URL=http://localhost:8080
+VITE_OAUTH_REDIRECT_URL=http://localhost:8080
 ```
 
 ### 4. Start the frontend
@@ -87,6 +88,19 @@ npm run dev
 ```bash
 npm run build
 ```
+
+## Deploy on Vercel
+
+1. Import this repository into Vercel.
+2. In Vercel project settings, open `Environment Variables`.
+3. Add these variables for `Production` (and `Preview` if needed):
+   - `VITE_API_BASE_URL=https://unsent-api-1-0-0-snapshot.onrender.com`
+   - `VITE_OAUTH_REDIRECT_URL=https://unsent-api-1-0-0-snapshot.onrender.com`
+4. Redeploy the project after saving env vars.
+
+Notes:
+- Vite reads `VITE_*` variables at build time, so a redeploy is required after env changes.
+- If Google OAuth is used, add your Vercel domain to allowed redirect/origin settings on the backend/provider side.
 
 ## Available Scripts
 
