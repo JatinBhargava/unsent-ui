@@ -1,5 +1,5 @@
-const DEFAULT_API_BASE_URL = "http://localhost:8080";
-const DEFAULT_OAUTH_BASE_URL = DEFAULT_API_BASE_URL;
+const DEFAULT_API_BASE_URL = "";
+const DEFAULT_OAUTH_BASE_URL = "";
 
 function sanitizeApiBaseUrl(value?: string) {
   if (!value) {
@@ -17,15 +17,18 @@ function sanitizeApiBaseUrl(value?: string) {
 }
 
 export function getApiBaseUrl() {
-  return sanitizeApiBaseUrl(import.meta.env.VITE_API_BASE_URL).replace(
+  const value = sanitizeApiBaseUrl(import.meta.env.VITE_API_BASE_URL).replace(
     /\/+$/,
     "",
   );
+
+  return value || window.location.origin;
 }
 
 export function getOauthBaseUrl() {
-  return sanitizeApiBaseUrl(import.meta.env.VITE_OAUTH_REDIRECT_URL).replace(
-    /\/+$/,
-    "",
-  ) || DEFAULT_OAUTH_BASE_URL;
+  const value = sanitizeApiBaseUrl(
+    import.meta.env.VITE_OAUTH_REDIRECT_URL,
+  ).replace(/\/+$/, "");
+
+  return value || getApiBaseUrl() || window.location.origin;
 }
