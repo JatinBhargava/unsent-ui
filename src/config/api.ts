@@ -1,5 +1,4 @@
 const DEFAULT_API_BASE_URL = "";
-const DEFAULT_OAUTH_BASE_URL = "";
 
 function sanitizeApiBaseUrl(value?: string) {
   if (!value) {
