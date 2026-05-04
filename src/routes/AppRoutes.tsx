@@ -43,6 +43,7 @@ export default function AppRoutes() {
           <Route path="/" element={<Home />} />
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/oauth-success" element={null} />
           <Route path="/diaries" element={<Diaries />} />
           <Route path="/write" element={<WritePage />} />
           <Route path="/wod" element={<WinOfTheDay />} />
