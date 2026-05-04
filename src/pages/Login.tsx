@@ -8,6 +8,24 @@ import githubIcon from "../assets/github.png";
 
 const OAUTH_BASE_URL = getOauthBaseUrl();
 
+function getGoogleOauthUrl() {
+  const fallbackBase = window.location.origin;
+  const normalizedBase =
+    !OAUTH_BASE_URL || OAUTH_BASE_URL.toLowerCase().includes("undefined")
+      ? fallbackBase
+      : OAUTH_BASE_URL;
+
+  try {
+    const url = new URL("/oauth2/authorization/google", normalizedBase);
+    url.searchParams.set("prompt", "select_account");
+    return url.toString();
+  } catch {
+    const url = new URL("/oauth2/authorization/google", fallbackBase);
+    url.searchParams.set("prompt", "select_account");
+    return url.toString();
+  }
+}
+
 export default function Login() {
   const navigate = useNavigate();
   const { login } = useAuth();
@@ -79,7 +97,7 @@ export default function Login() {
         <div className="mt-8 space-y-3">
           <button
             onClick={() => {
-              window.location.href = `${OAUTH_BASE_URL}/oauth2/authorization/google?prompt=select_account`;
+              window.location.href = getGoogleOauthUrl();
             }}
             className="w-full flex items-center justify-center gap-3 rounded-full border px-5 py-3 text-sm hover:bg-gray-100 transition"
           >
