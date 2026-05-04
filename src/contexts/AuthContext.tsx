@@ -2,6 +2,7 @@ import {
   createContext,
   useState,
   useContext,
+  useEffect,
   type ReactNode,
 } from "react";
 
@@ -17,6 +18,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoggedIn, setIsLoggedIn] = useState(
     () => !!localStorage.getItem("authToken"),
   );
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get("token");
+    if (!token) {
+      return;
+    }
+
+    localStorage.setItem("authToken", token);
+    setIsLoggedIn(true);
+    window.location.replace("/diaries");
+  }, []);
 
   const login = (token: string) => {
     localStorage.setItem("authToken", token);
