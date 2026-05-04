@@ -1,7 +1,9 @@
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 
 export default function Hero() {
   const navigate = useNavigate();
+  const { isLoggedIn } = useAuth();
 
   return (
     <section className="flex flex-col items-center text-center mt-12 sm:mt-16 md:mt-24 px-4 sm:px-6">
@@ -21,10 +23,10 @@ export default function Hero() {
 
       <div className="mt-10 flex flex-col sm:flex-row gap-4">
         <button
-          onClick={() => navigate("/login")}
+          onClick={() => navigate(isLoggedIn ? "/diaries" : "/login")}
           className="rounded-full bg-black text-white px-7 py-3 text-sm font-medium hover:opacity-90 transition"
         >
-          Start Writing
+          {isLoggedIn ? "Go to Diaries" : "Start Writing"}
         </button>
         <button
           onClick={() => navigate("/diaries")}

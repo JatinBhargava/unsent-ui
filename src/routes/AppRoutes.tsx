@@ -22,6 +22,7 @@ function OAuthCallbackHandler() {
 
     if (token) {
       login(token);
+      window.history.replaceState({}, "", location.pathname);
       navigate("/diaries", { replace: true });
       return;
     }

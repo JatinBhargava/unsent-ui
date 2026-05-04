@@ -2,7 +2,6 @@ import {
   createContext,
   useState,
   useContext,
-  useEffect,
   type ReactNode,
 } from "react";
 
@@ -15,15 +14,9 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  // Check if user is already logged in (token in localStorage)
-  useEffect(() => {
-    const token = localStorage.getItem("authToken");
-    if (token) {
-      setIsLoggedIn(true);
-    }
-  }, []);
+  const [isLoggedIn, setIsLoggedIn] = useState(
+    () => !!localStorage.getItem("authToken"),
+  );
 
   const login = (token: string) => {
     localStorage.setItem("authToken", token);
