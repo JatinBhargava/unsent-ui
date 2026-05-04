@@ -12,7 +12,16 @@ function sanitizeApiBaseUrl(value?: string) {
     return DEFAULT_API_BASE_URL;
   }
 
-  return trimmedValue;
+  try {
+    const parsed = new URL(trimmedValue);
+    if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+      return DEFAULT_API_BASE_URL;
+    }
+
+    return parsed.origin;
+  } catch {
+    return DEFAULT_API_BASE_URL;
+  }
 }
 
 export function getApiBaseUrl() {
