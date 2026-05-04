@@ -27,7 +27,7 @@ function OAuthCallbackHandler() {
     }
 
     if (error) {
-      navigate(`/login?error=${encodeURIComponent(error)}`, { replace: true });
+      navigate("/", { replace: true });
     }
   }, [location.search, login, navigate]);
 
