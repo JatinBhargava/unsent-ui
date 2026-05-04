@@ -2,18 +2,18 @@ import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { loginUser } from "../services/Auth";
 import { useAuth } from "../contexts/AuthContext";
-import { getOauthBaseUrl } from "../config/api";
+import { getApiBaseUrl } from "../config/api";
 import googleIcon from "../assets/google.png";
 import githubIcon from "../assets/github.png";
 
-const OAUTH_BASE_URL = getOauthBaseUrl();
+const API_BASE_URL = getApiBaseUrl();
 
 function getGoogleOauthUrl() {
   const fallbackBase = window.location.origin;
   const normalizedBase =
-    !OAUTH_BASE_URL || OAUTH_BASE_URL.toLowerCase().includes("undefined")
+    !API_BASE_URL || API_BASE_URL.toLowerCase().includes("undefined")
       ? fallbackBase
-      : OAUTH_BASE_URL;
+      : API_BASE_URL;
 
   try {
     const url = new URL("/oauth2/authorization/google", normalizedBase);
@@ -97,7 +97,9 @@ export default function Login() {
         <div className="mt-8 space-y-3">
           <button
             onClick={() => {
-              window.location.href = getGoogleOauthUrl();
+              const oauthUrl = getGoogleOauthUrl();
+              console.log("[oauth] redirecting to", oauthUrl);
+              window.location.href = oauthUrl;
             }}
             className="w-full flex items-center justify-center gap-3 rounded-full border px-5 py-3 text-sm hover:bg-gray-100 transition"
           >

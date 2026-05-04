@@ -32,11 +32,3 @@ export function getApiBaseUrl() {
 
   return value || window.location.origin;
 }
-
-export function getOauthBaseUrl() {
-  const value = sanitizeApiBaseUrl(
-    import.meta.env.VITE_OAUTH_REDIRECT_URL,
-  ).replace(/\/+$/, "");
-
-  return value || getApiBaseUrl() || window.location.origin;
-}
