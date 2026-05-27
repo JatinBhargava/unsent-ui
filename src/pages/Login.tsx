@@ -18,10 +18,12 @@ function getGoogleOauthUrl() {
   try {
     const url = new URL("/oauth2/authorization/google", normalizedBase);
     url.searchParams.set("prompt", "select_account");
+    url.searchParams.set("redirect_uri", `${window.location.origin}/`);
     return url.toString();
   } catch {
     const url = new URL("/oauth2/authorization/google", fallbackBase);
     url.searchParams.set("prompt", "select_account");
+    url.searchParams.set("redirect_uri", `${window.location.origin}/`);
     return url.toString();
   }
 }
@@ -98,7 +100,6 @@ export default function Login() {
           <button
             onClick={() => {
               const oauthUrl = getGoogleOauthUrl();
-              console.log("[oauth] redirecting to", oauthUrl);
               window.location.href = oauthUrl;
             }}
             className="w-full flex items-center justify-center gap-3 rounded-full border px-5 py-3 text-sm hover:bg-gray-100 transition"

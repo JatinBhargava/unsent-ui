@@ -1,9 +1,14 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
+import { createDiaryEntry } from "../services/Diary";
+import { getUserByEmail } from "../services/Auth";
+import { useAuth } from "../contexts/AuthContext";
 
 export default function WritePage() {
   const navigate = useNavigate();
+  const { userId: contextUserId, email } = useAuth();
+  const [userId, setUserId] = useState<string | null>(contextUserId);
   const [page, setPage] = useState({
     title: "",
     content: "",
@@ -12,6 +17,29 @@ export default function WritePage() {
   });
 
   const [charCount, setCharCount] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Fetch user ID from email if not available in context
+  useEffect(() => {
+    if (userId || !email) return;
+
+    const fetchUserId = async () => {
+      try {
+        const user = await getUserByEmail(email);
+        setUserId(user.userId); // Use user.id if available, otherwise use email
+      } catch (error) {
+        // Fallback to using email as userId
+        setUserId(email);
+      }
+    };
+
+    fetchUserId();
+  }, [email, userId]);
+
+  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const title = e.target.value;
+    setPage({ ...page, title });
+  };
 
   const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const content = e.target.value;
@@ -19,7 +47,7 @@ export default function WritePage() {
     setCharCount(content.length);
   };
 
-  const handlePublish = () => {
+  const handlePublish = async () => {
     if (!page.title.trim()) {
       alert("Please enter a title");
       return;
@@ -28,20 +56,55 @@ export default function WritePage() {
       alert("Please write something");
       return;
     }
-    console.log("Publishing page:", page);
-    // TODO: Send to backend
-    alert("Page published successfully!");
-    navigate("/diaries");
+    if (!userId) {
+      alert("User ID not found. Please log in again.");
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      await createDiaryEntry({
+        userId,
+        title: page.title,
+        content: page.content,
+        visibility: page.isPublic ? "Public" : "Private",
+        status: "Published",
+      });
+      alert("Page published successfully!");
+      navigate("/diaries");
+    } catch (error) {
+      console.error("Error publishing page:", error);
+      alert("Failed to publish page. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleSaveDraft = () => {
+  const handleSaveDraft = async () => {
     if (!page.title.trim()) {
       alert("Please enter a title");
       return;
     }
-    console.log("Saving draft:", page);
-    // TODO: Send to backend
-    alert("Draft saved successfully!");
+    if (!userId) {
+      alert("User ID not found. Please log in again.");
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      await createDiaryEntry({
+        userId,
+        content: page.content,
+        visibility: page.isPublic ? "Public" : "Private",
+        status: "Draft",
+      });
+      alert("Draft saved successfully!");
+    } catch (error) {
+      console.error("Error saving draft:", error);
+      alert("Failed to save draft. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -76,7 +139,7 @@ export default function WritePage() {
               type="text"
               placeholder="Give your page a title..."
               value={page.title}
-              onChange={(e) => setPage({ ...page, title: e.target.value })}
+              onChange={handleTitleChange}
               className="w-full rounded-lg border px-4 py-3 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-black"
             />
           </div>
@@ -139,15 +202,17 @@ export default function WritePage() {
           <div className="flex gap-4 pt-4">
             <button
               onClick={handleSaveDraft}
-              className="flex-1 rounded-full border border-gray-300 px-6 py-3 text-sm font-medium hover:bg-gray-100 transition"
+              disabled={isLoading}
+              className="flex-1 rounded-full border border-gray-300 px-6 py-3 text-sm font-medium hover:bg-gray-100 transition disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Save as Draft
+              {isLoading ? "Saving..." : "Save as Draft"}
             </button>
             <button
               onClick={handlePublish}
-              className="flex-1 rounded-full bg-black text-white px-6 py-3 text-sm font-medium hover:opacity-90 transition"
+              disabled={isLoading}
+              className="flex-1 rounded-full bg-black text-white px-6 py-3 text-sm font-medium hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Publish Page
+              {isLoading ? "Publishing..." : "Publish Page"}
             </button>
           </div>
         </div>
