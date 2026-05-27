@@ -5,4 +5,9 @@ import tailwindcss from "@tailwindcss/vite";
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  server: {
+    fs: {
+      allow: ["/Users/jatin/Desktop/Unsent/unsent-ui"],
+    },
+  },
 });
