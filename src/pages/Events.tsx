@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import Navbar from "../components/Navbar";
+import { useNotification } from "../hooks/useNotification";
 
 interface EventPost {
   id: number;
@@ -29,6 +30,7 @@ const SAMPLE_EVENT: EventPost = {
 };
 
 export default function Events() {
+  const { showNotification, NotificationComponent } = useNotification();
   const [events, setEvents] = useState<EventPost[]>([]);
   const [interestedIds, setInterestedIds] = useState<number[]>([]);
   const [showPostForm, setShowPostForm] = useState(false);
@@ -146,9 +148,9 @@ export default function Events() {
 
     try {
       await navigator.clipboard.writeText(shareText);
-      alert("Event details copied to clipboard");
+      showNotification("success", "Event details copied to clipboard");
     } catch {
-      alert("Sharing not available on this browser");
+      showNotification("error", "Sharing not available on this browser");
     }
   };
 
@@ -163,6 +165,7 @@ export default function Events() {
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#f3f2ee] px-4 py-8 sm:px-6 sm:py-12 flex justify-center">
+      <NotificationComponent />
       <div className="pointer-events-none absolute -top-24 left-[-6rem] h-72 w-72 rounded-full bg-amber-200/45 blur-3xl" />
       <div className="pointer-events-none absolute bottom-[-6rem] right-[-5rem] h-72 w-72 rounded-full bg-cyan-200/45 blur-3xl" />
 
