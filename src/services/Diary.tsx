@@ -86,3 +86,56 @@ export async function getDiaryById(id: number) {
 
   return response.json();
 }
+
+export async function updateDiaryEntry(
+  id: number,
+  entry: { title: string; content: string; visibility: string; status: string },
+) {
+  const token = localStorage.getItem("authToken");
+
+  if (!token) {
+    throw new Error("No authentication token found");
+  }
+
+  const response = await fetch(`${API_BASE_URL}/diary/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(entry),
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to update diary entry");
+  }
+
+  return response.json();
+}
+
+export async function deleteDiaryEntry(id: number) {
+  const token = localStorage.getItem("authToken");
+
+  if (!token) {
+    throw new Error("No authentication token found");
+  }
+
+  const response = await fetch(`${API_BASE_URL}/diary/${id}`, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to delete diary entry");
+  }
+
+  // 204 No Content means successful deletion with no response body
+  if (response.status === 204) {
+    return { success: true };
+  }
+
+  return response.json();
+}

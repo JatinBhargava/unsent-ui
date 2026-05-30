@@ -4,10 +4,12 @@ import Navbar from "../components/Navbar";
 import { createDiaryEntry } from "../services/Diary";
 import { getUserByEmail } from "../services/Auth";
 import { useAuth } from "../contexts/AuthContext";
+import { useNotification } from "../hooks/useNotification";
 
 export default function WritePage() {
   const navigate = useNavigate();
   const { userId: contextUserId, email } = useAuth();
+  const { showNotification, NotificationComponent } = useNotification();
   const [userId, setUserId] = useState<string | null>(contextUserId);
   const [page, setPage] = useState({
     title: "",
@@ -49,15 +51,15 @@ export default function WritePage() {
 
   const handlePublish = async () => {
     if (!page.title.trim()) {
-      alert("Please enter a title");
+      showNotification("error","Please enter a title");
       return;
     }
     if (!page.content.trim()) {
-      alert("Please write something");
+      showNotification("error","Please write something");
       return;
     }
     if (!userId) {
-      alert("User ID not found. Please log in again.");
+      showNotification("error","User ID not found. Please log in again.");
       return;
     }
 
@@ -70,11 +72,11 @@ export default function WritePage() {
         visibility: page.isPublic ? "Public" : "Private",
         status: "Published",
       });
-      alert("Page published successfully!");
+      showNotification("error","Page published successfully!");
       navigate("/diaries");
     } catch (error) {
       console.error("Error publishing page:", error);
-      alert("Failed to publish page. Please try again.");
+      showNotification("error","Failed to publish page. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -82,11 +84,11 @@ export default function WritePage() {
 
   const handleSaveDraft = async () => {
     if (!page.title.trim()) {
-      alert("Please enter a title");
+      showNotification("error","Please enter a title");
       return;
     }
     if (!userId) {
-      alert("User ID not found. Please log in again.");
+      showNotification("error","User ID not found. Please log in again.");
       return;
     }
 
@@ -98,10 +100,10 @@ export default function WritePage() {
         visibility: page.isPublic ? "Public" : "Private",
         status: "Draft",
       });
-      alert("Draft saved successfully!");
+      showNotification("success","Draft saved successfully!");
     } catch (error) {
       console.error("Error saving draft:", error);
-      alert("Failed to save draft. Please try again.");
+      showNotification("error","Failed to save draft. Please try again.");
     } finally {
       setIsLoading(false);
     }
