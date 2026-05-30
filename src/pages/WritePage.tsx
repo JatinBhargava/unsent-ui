@@ -111,8 +111,10 @@ export default function WritePage() {
 
   return (
     <div className="min-h-screen bg-[#fafafa]">
-      <Navbar />
 
+
+      <Navbar />
+      <NotificationComponent />      
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
         {/* Header */}
         <div className="mb-8">
