@@ -3,10 +3,12 @@ import { getApiBaseUrl } from "../config/api";
 const API_BASE_URL = getApiBaseUrl();
 
 export interface User {
-  id: string;
-  email: string;
-  username?: string;
-  [key: string]: unknown;
+  userId: string;
+  email: string | null;
+  username: string;
+  displayName: string;
+  gender: string;
+  dateOfBirth: string | null;
 }
 
 export async function getUserByEmail(email: string): Promise<User> {
@@ -21,7 +23,7 @@ export async function getUserByEmail(email: string): Promise<User> {
   }
 
   const response = await fetch(
-    `${API_BASE_URL}/users/email/${encodeURIComponent(email)}`,
+    `${API_BASE_URL}/auth/user?email=${email}`,
     {
       method: "GET",
       headers: {
@@ -45,7 +47,7 @@ export async function getUser(userId: string): Promise<User> {
     throw new Error("No authentication token found");
   }
 
-  const response = await fetch(`${API_BASE_URL}/users/${userId}`, {
+  const response = await fetch(`${API_BASE_URL}/auth/users/${userId}`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
