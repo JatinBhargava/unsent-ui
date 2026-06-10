@@ -1,4 +1,5 @@
 import Navbar from "../components/Navbar";
+import { linkifyEmail, getPrivacyLastUpdated } from "../utils/Util";
 
 const sections = [
   {
@@ -118,18 +119,17 @@ const sections = [
     title: "11. Policy Updates",
     body: "We may update this Privacy Policy periodically. Continued use of the application after updates means acceptance of revised terms.",
   },
-  // {
-  //   title: "12. Contact Us",
-  //   intro: "If you have questions regarding privacy or data handling:",
-  //   items: ["Email: support@yourapp.com", "Application: Diary App"],
-  // },
+  {
+    title: "12. Contact Us",
+    body: "If you have questions regarding privacy or data handling, reach out at unsentoffical@gmail.com",
+  },
 ];
 
 export default function Privacy() {
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#f3f2ee] px-4 py-8 sm:px-6 sm:py-12 flex justify-center">
-      <div className="pointer-events-none absolute -top-24 left-[-6rem] h-72 w-72 rounded-full bg-amber-200/45 blur-3xl" />
-      <div className="pointer-events-none absolute bottom-[-6rem] right-[-5rem] h-72 w-72 rounded-full bg-cyan-200/45 blur-3xl" />
+      <div className="pointer-events-none absolute -top-24 -left-24 h-72 w-72 rounded-full bg-amber-200/45 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-24 -right-20 h-72 w-72 rounded-full bg-cyan-200/45 blur-3xl" />
 
       <div className="w-full max-w-4xl">
         <Navbar />
@@ -139,7 +139,7 @@ export default function Privacy() {
             Privacy <span className="italic">Policy</span>
           </h1>
           <p className="mt-3 sm:mt-4 text-gray-600 text-xs sm:text-sm max-w-2xl mx-auto px-2 leading-relaxed">
-            Last Updated: May 2026
+            Last Updated: {getPrivacyLastUpdated()}
           </p>
           <p className="mt-2 text-gray-600 text-xs sm:text-sm max-w-2xl mx-auto px-2 leading-relaxed">
             Welcome to Diary App. Your privacy is important to us.
@@ -155,7 +155,7 @@ export default function Privacy() {
 
               {section.body && (
                 <p className="mt-3 text-sm sm:text-base leading-relaxed text-gray-700 max-w-3xl">
-                  {section.body}
+                  {linkifyEmail(section.body)}
                 </p>
               )}
 
