@@ -9,6 +9,7 @@ import WritePage from "../pages/WritePage";
 import Profile from "../pages/Profile";
 import Events from "../pages/Events";
 import Friends from "../pages/Friends";
+import Conversation from "../pages/Conversation";
 import About from "../pages/About";
 import Terms from "../pages/Terms";
 import Privacy from "../pages/Privacy";
@@ -63,6 +64,11 @@ function ProtectedEventsRoute() {
   return isLoggedIn ? <Events /> : <Navigate to="/login" replace />;
 }
 
+function ProtectedConversationRoute() {
+  const { isLoggedIn } = useAuth();
+  return isLoggedIn ? <Conversation /> : <Navigate to="/login" replace />;
+}
+
 export default function AppRoutes() {
   return (
     <BrowserRouter>
@@ -84,6 +90,7 @@ export default function AppRoutes() {
           <Route path="/profile" element={<Profile />} />
           <Route path="/events" element={<ProtectedEventsRoute />} />
           <Route path="/friends" element={<Friends />} />
+          <Route path="/messages/conversation/:id" element={<ProtectedConversationRoute />} />
         </Routes>
       </AuthProvider>
     </BrowserRouter>

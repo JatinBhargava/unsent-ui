@@ -25,6 +25,7 @@ function gitLastModified(filePath: string): string {
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   define: {
+    global: "globalThis",
     __PRIVACY_LAST_UPDATED__: JSON.stringify(
       gitLastModified("src/pages/Privacy.tsx")
     ),

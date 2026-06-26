@@ -6,7 +6,7 @@ export default function About() {
       <div className="pointer-events-none absolute -top-24 left-[-6rem] h-72 w-72 rounded-full bg-amber-200/45 blur-3xl" />
       <div className="pointer-events-none absolute bottom-[-6rem] right-[-5rem] h-72 w-72 rounded-full bg-cyan-200/45 blur-3xl" />
 
-      <div className="w-full max-w-4xl">
+      <div className="relative z-10 w-full max-w-4xl">
         <Navbar />
 
         <header className="mb-12 sm:mb-16 text-center">
