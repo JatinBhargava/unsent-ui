@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { useAuth } from "../contexts/AuthContext";
 
 export default function Navbar() {
@@ -7,222 +8,159 @@ export default function Navbar() {
   const { isLoggedIn, logout } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+  const [dropdownPos, setDropdownPos] = useState({ top: 0, right: 0 });
+  const [mobileMenuTop, setMobileMenuTop] = useState(0);
+  const avatarBtnRef = useRef<HTMLButtonElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const navRef = useRef<HTMLElement>(null);
 
-  const navigateToLogin = () => {
-    navigate("/login");
-    setMenuOpen(false);
+  useEffect(() => {
+    if (!userDropdownOpen) return;
+    const close = (e: MouseEvent) => {
+      if (
+        !avatarBtnRef.current?.contains(e.target as Node) &&
+        !dropdownRef.current?.contains(e.target as Node)
+      ) {
+        setUserDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", close);
+    return () => document.removeEventListener("mousedown", close);
+  }, [userDropdownOpen]);
+
+  const openDropdown = () => {
+    if (avatarBtnRef.current) {
+      const r = avatarBtnRef.current.getBoundingClientRect();
+      setDropdownPos({ top: r.bottom + 6, right: window.innerWidth - r.right });
+    }
+    setUserDropdownOpen((o) => !o);
   };
 
-  const navigateToProfile = () => {
-    navigate("/profile");
-    setUserDropdownOpen(false);
+  const openMobileMenu = () => {
+    if (navRef.current) {
+      const r = navRef.current.getBoundingClientRect();
+      setMobileMenuTop(r.bottom);
+    }
+    setMenuOpen((o) => !o);
   };
 
-  const navigateToDiaries = () => {
-    navigate("/diaries");
-    setMenuOpen(false);
-  };
-
-  const navigateToWinOfTheDay = () => {
-    navigate("/wod");
-    setMenuOpen(false);
-  };
-
-  const navigateToWrite = () => {
-    navigate("/write");
-    setMenuOpen(false);
-  };
-
-  const navigateToEvents = () => {
-    navigate("/events");
-    setMenuOpen(false);
-  };
-
-  const navigateToFriends = () => {
-    navigate("/friends");
-    setMenuOpen(false);
-  };
-
-  const navigateToHome = () => {
-    navigate("/");
-    setMenuOpen(false);
-  };
-
-  const handleLogout = () => {
-    logout();
-    navigate("/");
-    setMenuOpen(false);
-    setUserDropdownOpen(false);
-  };
+  const navigateToLogin    = () => { navigate("/login");    setMenuOpen(false); };
+  const navigateToProfile  = () => { navigate("/profile");  setMenuOpen(false); setUserDropdownOpen(false); };
+  const navigateToDiaries  = () => { navigate("/diaries");  setMenuOpen(false); };
+  const navigateToWinOfTheDay = () => { navigate("/wod");   setMenuOpen(false); };
+  const navigateToWrite    = () => { navigate("/write");    setMenuOpen(false); };
+  const navigateToEvents   = () => { navigate("/events");   setMenuOpen(false); };
+  const navigateToFriends  = () => { navigate("/friends");  setMenuOpen(false); };
+  const navigateToHome     = () => { navigate("/");         setMenuOpen(false); };
+  const handleLogout       = () => { logout(); navigate("/"); setMenuOpen(false); setUserDropdownOpen(false); };
 
   return (
-    <nav className="flex items-center justify-between px-4 sm:px-6 md:px-10 py-4 sm:py-6 text-gray-900">
+    <nav ref={navRef} className="flex items-center justify-between py-2 text-gray-900">
       <h1
         onClick={navigateToHome}
-        className="text-lg sm:text-xl font-semibold tracking-tight cursor-pointer hover:opacity-70 transition"
+        className="text-base font-semibold tracking-tight cursor-pointer hover:opacity-60 transition select-none"
       >
         Unsent
       </h1>
 
       {/* Desktop Menu */}
-      <div className="hidden sm:flex items-center gap-3 sm:gap-4 md:gap-6 text-xs sm:text-sm">
+      <div className="hidden sm:flex items-center gap-5 md:gap-7 text-[13px] text-gray-600">
         {!isLoggedIn && (
-          <>
-            <a
-              onClick={navigateToWinOfTheDay}
-              className="hover:opacity-70 cursor-pointer"
-            >
-              Win of the Day
-            </a>
-          </>
+          <a onClick={navigateToWinOfTheDay} className="hover:text-gray-900 cursor-pointer transition">
+            Win of the Day
+          </a>
         )}
         {isLoggedIn && (
           <>
-            <a
-              onClick={navigateToWrite}
-              className="hover:opacity-70 cursor-pointer font-semibold"
-            >
-              ✏️ Write
-            </a>
-            <a
-              onClick={navigateToDiaries}
-              className="hover:opacity-70 cursor-pointer"
-            >
-              Diaries
-            </a>
-            <a
-              onClick={navigateToFriends}
-              className="hover:opacity-70 cursor-pointer"
-            >
-              Friends
-            </a>
-            <a
-              onClick={navigateToEvents}
-              className="hover:opacity-70 cursor-pointer"
-            >
-              Events
-            </a>
+            <a onClick={navigateToWrite} className="hover:text-gray-900 cursor-pointer transition font-medium text-gray-900">Write</a>
+            <a onClick={navigateToDiaries} className="hover:text-gray-900 cursor-pointer transition">Diaries</a>
+            <a onClick={navigateToFriends} className="hover:text-gray-900 cursor-pointer transition">Friends</a>
+            <a onClick={navigateToEvents} className="hover:text-gray-900 cursor-pointer transition">Events</a>
           </>
         )}
+
         {isLoggedIn ? (
           <div className="relative">
             <button
-              onMouseEnter={() => setUserDropdownOpen(true)}
-              onMouseLeave={() => setUserDropdownOpen(false)}
-              className="text-lg cursor-pointer hover:opacity-70 transition"
+              ref={avatarBtnRef}
+              onClick={openDropdown}
+              className="flex items-center justify-center h-7 w-7 rounded-full bg-gray-200 hover:bg-gray-300 transition text-xs font-semibold text-gray-700"
               title="User Menu"
             >
-              🚪
+              U
             </button>
-            {userDropdownOpen && (
+            {userDropdownOpen && createPortal(
               <div
-                className="absolute right-0 mt-0 bg-white border border-gray-200 rounded-lg shadow-lg z-50 min-w-max"
-                onMouseEnter={() => setUserDropdownOpen(true)}
-                onMouseLeave={() => setUserDropdownOpen(false)}
+                ref={dropdownRef}
+                style={{ top: dropdownPos.top, right: dropdownPos.right }}
+                className="fixed bg-white border border-gray-100 rounded-xl shadow-lg z-[9999] min-w-[140px] overflow-hidden"
               >
-                <button
-                  onClick={navigateToProfile}
-                  className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 transition first:rounded-t-lg"
-                >
-                  👤 Profile
+                <button onClick={navigateToProfile} className="w-full text-left px-4 py-2.5 text-xs text-gray-700 hover:bg-gray-50 transition">
+                  Profile
                 </button>
-                <button
-                  onClick={handleLogout}
-                  className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 transition last:rounded-b-lg border-t border-gray-100"
-                >
-                  🚪 Logout
+                <button onClick={handleLogout} className="w-full text-left px-4 py-2.5 text-xs text-red-500 hover:bg-red-50 transition border-t border-gray-100">
+                  Logout
                 </button>
-              </div>
+              </div>,
+              document.body
             )}
           </div>
         ) : (
           <button
             onClick={navigateToLogin}
-            className="rounded-full border px-4 py-1.5 hover:bg-black hover:text-white transition"
+            className="rounded-full border border-gray-300 px-4 py-1.5 text-xs hover:bg-gray-900 hover:text-white hover:border-gray-900 transition"
           >
             Login
           </button>
         )}
       </div>
 
-      {/* Mobile Hamburger Menu */}
+      {/* Mobile Hamburger */}
       <button
-        onClick={() => setMenuOpen(!menuOpen)}
-        className="sm:hidden flex flex-col gap-1.5 cursor-pointer"
+        onClick={openMobileMenu}
+        className="sm:hidden flex flex-col gap-[5px] cursor-pointer p-1"
         title="Menu"
       >
-        <div className="w-6 h-0.5 bg-black"></div>
-        <div className="w-6 h-0.5 bg-black"></div>
-        <div className="w-6 h-0.5 bg-black"></div>
+        <span className={`block w-5 h-px bg-gray-700 transition-all duration-200 ${menuOpen ? "rotate-45 translate-y-[6px]" : ""}`} />
+        <span className={`block w-5 h-px bg-gray-700 transition-all duration-200 ${menuOpen ? "opacity-0" : ""}`} />
+        <span className={`block w-5 h-px bg-gray-700 transition-all duration-200 ${menuOpen ? "-rotate-45 -translate-y-[6px]" : ""}`} />
       </button>
 
-      {/* Mobile Menu Dropdown */}
-      {menuOpen && (
-        <div className="absolute top-14 left-0 right-0 bg-white border-b border-gray-200 p-4 sm:hidden z-50">
-          <div className="flex flex-col gap-4">
-            {!isLoggedIn && (
-              <>
-                <a
-                  onClick={navigateToWinOfTheDay}
-                  className="hover:opacity-70 cursor-pointer text-sm"
-                >
+      {/* Mobile Menu — portaled to escape stacking contexts */}
+      {menuOpen && createPortal(
+        <div
+          style={{ top: mobileMenuTop }}
+          className="fixed left-0 right-0 bottom-0 z-[9999] flex flex-col"
+        >
+          {/* Backdrop */}
+          <div className="absolute inset-0 bg-black/20 backdrop-blur-sm" onClick={() => setMenuOpen(false)} />
+          {/* Panel */}
+          <div className="relative bg-[#f3f2ee]/98 backdrop-blur-md border-t border-gray-200/60 shadow-xl">
+            <div className="flex flex-col px-6 py-5 gap-1">
+              {!isLoggedIn && (
+                <button onClick={navigateToWinOfTheDay} className="text-left py-3 text-sm text-gray-700 hover:text-gray-900 border-b border-gray-100 transition">
                   Win of the Day
-                </a>
-              </>
-            )}
-            {isLoggedIn && (
-              <>
-                <a
-                  onClick={navigateToWrite}
-                  className="hover:opacity-70 cursor-pointer text-sm font-semibold"
-                >
-                  ✏️ Write
-                </a>
-                <a
-                  onClick={navigateToDiaries}
-                  className="hover:opacity-70 cursor-pointer text-sm"
-                >
-                  Diaries
-                </a>
-                <a
-                  onClick={navigateToFriends}
-                  className="hover:opacity-70 cursor-pointer text-sm"
-                >
-                  Friends
-                </a>
-                <a
-                  onClick={navigateToEvents}
-                  className="hover:opacity-70 cursor-pointer text-sm"
-                >
-                  Events
-                </a>
-              </>
-            )}
-            {isLoggedIn ? (
-              <>
-                <button
-                  onClick={navigateToProfile}
-                  className="text-left text-sm hover:opacity-70 transition"
-                >
-                  👤 Profile
                 </button>
-                <button
-                  onClick={handleLogout}
-                  className="text-left text-sm hover:opacity-70 transition"
-                >
-                  🚪 Logout
+              )}
+              {isLoggedIn && (
+                <>
+                  <button onClick={navigateToWrite} className="text-left py-3 text-sm font-medium text-gray-900 border-b border-gray-100">Write</button>
+                  <button onClick={navigateToDiaries} className="text-left py-3 text-sm text-gray-700 hover:text-gray-900 border-b border-gray-100 transition">Diaries</button>
+                  <button onClick={navigateToFriends} className="text-left py-3 text-sm text-gray-700 hover:text-gray-900 border-b border-gray-100 transition">Friends</button>
+                  <button onClick={navigateToEvents} className="text-left py-3 text-sm text-gray-700 hover:text-gray-900 border-b border-gray-100 transition">Events</button>
+                  <button onClick={navigateToProfile} className="text-left py-3 text-sm text-gray-700 hover:text-gray-900 border-b border-gray-100 transition">Profile</button>
+                  <button onClick={handleLogout} className="text-left py-3 text-sm text-red-500 hover:text-red-700 transition">Logout</button>
+                </>
+              )}
+              {!isLoggedIn && (
+                <button onClick={navigateToLogin} className="mt-2 rounded-full bg-gray-900 text-white px-4 py-2.5 text-sm font-medium hover:bg-black transition">
+                  Login
                 </button>
-              </>
-            ) : (
-              <button
-                onClick={navigateToLogin}
-                className="rounded-full border px-4 py-2 hover:bg-black hover:text-white transition text-sm w-full"
-              >
-                Login
-              </button>
-            )}
+              )}
+            </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </nav>
   );

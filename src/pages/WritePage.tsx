@@ -21,48 +21,32 @@ export default function WritePage() {
   const [charCount, setCharCount] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Fetch user ID from email if not available in context
   useEffect(() => {
     if (userId || !email) return;
-
     const fetchUserId = async () => {
       try {
         const user = await getUserByEmail(email);
-        setUserId(user.userId); // Use user.id if available, otherwise use email
-      } catch (error) {
-        // Fallback to using email as userId
+        setUserId(user.userId);
+      } catch {
         setUserId(email);
       }
     };
-
     fetchUserId();
   }, [email, userId]);
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const title = e.target.value;
-    setPage({ ...page, title });
+    setPage({ ...page, title: e.target.value });
   };
 
   const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const content = e.target.value;
-    setPage({ ...page, content });
-    setCharCount(content.length);
+    setPage({ ...page, content: e.target.value });
+    setCharCount(e.target.value.length);
   };
 
   const handlePublish = async () => {
-    if (!page.title.trim()) {
-      showNotification("error","Please enter a title");
-      return;
-    }
-    if (!page.content.trim()) {
-      showNotification("error","Please write something");
-      return;
-    }
-    if (!userId) {
-      showNotification("error","User ID not found. Please log in again.");
-      return;
-    }
-
+    if (!page.title.trim()) { showNotification("error", "Please enter a title"); return; }
+    if (!page.content.trim()) { showNotification("error", "Please write something"); return; }
+    if (!userId) { showNotification("error", "User ID not found. Please log in again."); return; }
     setIsLoading(true);
     try {
       await createDiaryEntry({
@@ -72,26 +56,18 @@ export default function WritePage() {
         visibility: page.isPublic ? "Public" : "Private",
         status: "Published",
       });
-      showNotification("error","Page published successfully!");
+      showNotification("success", "Page published successfully!");
       navigate("/diaries");
-    } catch (error) {
-      console.error("Error publishing page:", error);
-      showNotification("error","Failed to publish page. Please try again.");
+    } catch {
+      showNotification("error", "Failed to publish page. Please try again.");
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleSaveDraft = async () => {
-    if (!page.title.trim()) {
-      showNotification("error","Please enter a title");
-      return;
-    }
-    if (!userId) {
-      showNotification("error","User ID not found. Please log in again.");
-      return;
-    }
-
+    if (!page.title.trim()) { showNotification("error", "Please enter a title"); return; }
+    if (!userId) { showNotification("error", "User ID not found. Please log in again."); return; }
     setIsLoading(true);
     try {
       await createDiaryEntry({
@@ -100,132 +76,106 @@ export default function WritePage() {
         visibility: page.isPublic ? "Public" : "Private",
         status: "Draft",
       });
-      showNotification("success","Draft saved successfully!");
-    } catch (error) {
-      console.error("Error saving draft:", error);
-      showNotification("error","Failed to save draft. Please try again.");
+      showNotification("success", "Draft saved successfully!");
+    } catch {
+      showNotification("error", "Failed to save draft. Please try again.");
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#fafafa]">
+    <div className="relative min-h-screen overflow-hidden bg-[#f3f2ee] px-4 sm:px-6 py-8 sm:py-12 flex justify-center">
+      {/* Ambient blobs */}
+      <div className="pointer-events-none absolute -top-24 -left-24 h-72 w-72 rounded-full bg-amber-200/45 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-24 -right-20 h-72 w-72 rounded-full bg-cyan-200/45 blur-3xl" />
+      <div className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-96 w-96 rounded-full bg-rose-100/20 blur-3xl" />
 
+      <NotificationComponent />
 
-      <Navbar />
-      <NotificationComponent />      
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
-        {/* Header */}
-        <div className="mb-8">
-          <button
-            onClick={() => navigate("/diaries")}
-            className="text-xs sm:text-sm text-gray-600 hover:text-black underline transition mb-4"
-          >
-            ← Back to Diaries
-          </button>
-          <h1 className="text-2xl sm:text-4xl font-semibold">
-            Write a New Page
+      <div className="relative z-10 w-full max-w-2xl">
+        <Navbar />
+
+        {/* Hero */}
+        <div className="mt-8 mb-10 text-center">
+          <p className="text-xs tracking-widest uppercase text-gray-400 mb-3">New entry</p>
+          <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight text-gray-900">
+            What's on your mind?
           </h1>
-          <p className="mt-2 text-xs sm:text-sm text-gray-600">
-            Share your thoughts. Keep it private or let others read.
+          <p className="mt-3 text-sm text-gray-500 max-w-sm mx-auto leading-relaxed">
+            Write freely. Keep it for yourself or share it with the world.
           </p>
         </div>
 
-        {/* Write Form */}
-        <div className="bg-white rounded-2xl border p-6 sm:p-8 space-y-6">
+        {/* Form card */}
+        <div className="rounded-3xl bg-white/60 backdrop-blur-sm border border-white/80 shadow-[0_8px_40px_rgba(0,0,0,0.06)] p-6 sm:p-8 space-y-6">
+
           {/* Title */}
-          <div>
-            <label className="block text-xs sm:text-sm text-gray-500 font-medium mb-2">
-              Title *
-            </label>
-            <input
-              type="text"
-              placeholder="Give your page a title..."
-              value={page.title}
-              onChange={handleTitleChange}
-              className="w-full rounded-lg border px-4 py-3 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-black"
-            />
-          </div>
+          <input
+            type="text"
+            placeholder="Give it a title…"
+            value={page.title}
+            onChange={handleTitleChange}
+            className="w-full bg-transparent border-0 border-b border-gray-200 px-0 py-2 text-lg sm:text-xl font-medium text-gray-900 placeholder:text-gray-300 focus:outline-none focus:border-gray-400 transition"
+          />
 
           {/* Content */}
-          <div>
-            <label className="block text-xs sm:text-sm text-gray-500 font-medium mb-2">
-              Content * ({charCount} characters)
-            </label>
-            <textarea
-              placeholder="Write your thoughts here..."
-              value={page.content}
-              onChange={handleContentChange}
-              rows={12}
-              className="w-full rounded-lg border px-4 py-3 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-black resize-none"
-            />
-          </div>
+          <textarea
+            placeholder="Start writing here…"
+            value={page.content}
+            onChange={handleContentChange}
+            rows={14}
+            className="w-full bg-transparent border-0 resize-none text-sm sm:text-base text-gray-700 placeholder:text-gray-300 leading-relaxed focus:outline-none"
+          />
 
-          {/* Tags */}
-          <div>
-            <label className="block text-xs sm:text-sm text-gray-500 font-medium mb-2">
-              Tags (optional)
-            </label>
-            <input
-              type="text"
-              placeholder="e.g., thoughts, memories, poetry (comma separated)"
-              value={page.tags}
-              onChange={(e) => setPage({ ...page, tags: e.target.value })}
-              className="w-full rounded-lg border px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-black"
-            />
-          </div>
+          {/* Footer row */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-4 border-t border-gray-100">
 
-          {/* Visibility */}
-          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-            <div>
-              <label className="text-xs sm:text-sm text-gray-700 font-medium">
-                Visibility
-              </label>
-              <p className="text-xs text-gray-500 mt-1">
-                {page.isPublic
-                  ? "Anyone can read this page"
-                  : "Only you can read this page"}
-              </p>
+            {/* Visibility + char count */}
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => setPage({ ...page, isPublic: !page.isPublic })}
+                className="flex items-center gap-2 text-xs text-gray-500 hover:text-gray-800 transition"
+              >
+                <span className={`relative inline-flex h-5 w-9 items-center rounded-full transition ${page.isPublic ? "bg-gray-900" : "bg-gray-300"}`}>
+                  <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition ${page.isPublic ? "translate-x-4" : "translate-x-1"}`} />
+                </span>
+                {page.isPublic ? "Public" : "Private"}
+              </button>
+              {charCount > 0 && (
+                <span className="text-xs text-gray-400">{charCount} chars</span>
+              )}
             </div>
-            <button
-              onClick={() => setPage({ ...page, isPublic: !page.isPublic })}
-              className={`relative inline-flex h-8 w-14 items-center rounded-full transition ${
-                page.isPublic ? "bg-black" : "bg-gray-300"
-              }`}
-            >
-              <span
-                className={`inline-block h-6 w-6 transform rounded-full bg-white transition ${
-                  page.isPublic ? "translate-x-7" : "translate-x-1"
-                }`}
-              />
-            </button>
-          </div>
 
-          {/* Buttons */}
-          <div className="flex gap-4 pt-4">
-            <button
-              onClick={handleSaveDraft}
-              disabled={isLoading}
-              className="flex-1 rounded-full border border-gray-300 px-6 py-3 text-sm font-medium hover:bg-gray-100 transition disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isLoading ? "Saving..." : "Save as Draft"}
-            </button>
-            <button
-              onClick={handlePublish}
-              disabled={isLoading}
-              className="flex-1 rounded-full bg-black text-white px-6 py-3 text-sm font-medium hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isLoading ? "Publishing..." : "Publish Page"}
-            </button>
+            {/* Actions */}
+            <div className="flex items-center gap-3 w-full sm:w-auto">
+              <button
+                onClick={handleSaveDraft}
+                disabled={isLoading}
+                className="flex-1 sm:flex-none rounded-full border border-gray-300 px-5 py-2 text-xs font-medium text-gray-700 hover:bg-gray-100 transition disabled:opacity-50"
+              >
+                {isLoading ? "Saving…" : "Save draft"}
+              </button>
+              <button
+                onClick={handlePublish}
+                disabled={isLoading}
+                className="flex-1 sm:flex-none rounded-full bg-gray-900 text-white px-5 py-2 text-xs font-medium hover:opacity-90 transition disabled:opacity-50 shadow-[0_4px_14px_rgba(0,0,0,0.18)]"
+              >
+                {isLoading ? "Publishing…" : "Publish"}
+              </button>
+            </div>
           </div>
         </div>
 
-        {/* Info */}
-        <div className="mt-8 text-center text-xs sm:text-sm text-gray-500">
-          <p>
-            Your page will be saved to your diary and can be edited anytime.
-          </p>
+        {/* Tags */}
+        <div className="mt-4 px-1">
+          <input
+            type="text"
+            placeholder="Add tags: thoughts, memories, poetry…"
+            value={page.tags}
+            onChange={(e) => setPage({ ...page, tags: e.target.value })}
+            className="w-full bg-transparent text-xs text-gray-400 placeholder:text-gray-300 focus:outline-none focus:text-gray-600 transition"
+          />
         </div>
       </div>
     </div>
