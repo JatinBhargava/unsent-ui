@@ -8,7 +8,12 @@ import {
   getDiaryById,
   updateDiaryEntry,
   deleteDiaryEntry,
+  submitContribution,
+  getPendingContributions,
+  acceptContribution,
+  rejectContribution,
   type DiaryRecord,
+  type ContributionRequest,
 } from "../services/Diary";
 
 export default function DiaryDetail() {
@@ -41,6 +46,14 @@ export default function DiaryDetail() {
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showInscribePanel, setShowInscribePanel] = useState(false);
+  const [inscribeContent, setInscribeContent] = useState("");
+  const [inscribeVisibility, setInscribeVisibility] = useState<"Public" | "Private">("Public");
+  const [isInscribing, setIsInscribing] = useState(false);
+  const [pendingContributions, setPendingContributions] = useState<ContributionRequest[]>([]);
+  const [showInscribeRequests, setShowInscribeRequests] = useState(false);
+  const [contributionsLoading, setContributionsLoading] = useState(false);
+  const [expandedContributions, setExpandedContributions] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     const fetchDiary = async () => {
@@ -66,6 +79,12 @@ export default function DiaryDetail() {
 
     fetchDiary();
   }, [id]);
+
+  useEffect(() => {
+    if (diary && currentUserId && String(diary.userId) === String(currentUserId)) {
+      fetchPendingContributions(diary.recordId);
+    }
+  }, [diary?.recordId, currentUserId]);
 
   const getPageContent = () => {
     if (!diary?.content) return "";
@@ -169,6 +188,53 @@ export default function DiaryDetail() {
 
   const handleCancelDelete = () => {
     setShowDeleteConfirm(false);
+  };
+
+  const handleInscribe = async () => {
+    if (!diary || !inscribeContent.trim() || !currentUserId) return;
+    try {
+      setIsInscribing(true);
+      await submitContribution(diary.recordId, currentUserId, inscribeContent.trim());
+      setShowInscribePanel(false);
+      setInscribeContent("");
+      showNotification("success", "Your inscription was added!");
+    } catch {
+      showNotification("error", "Failed to inscribe. Please try again.");
+    } finally {
+      setIsInscribing(false);
+    }
+  };
+
+  const fetchPendingContributions = async (diaryId: number) => {
+    try {
+      setContributionsLoading(true);
+      const data = await getPendingContributions(diaryId);
+      setPendingContributions(data);
+    } catch {
+      setPendingContributions([]);
+    } finally {
+      setContributionsLoading(false);
+    }
+  };
+
+  const handleAccept = async (contributionId: string) => {
+    try {
+      await acceptContribution(contributionId);
+      setPendingContributions((prev) => prev.filter((c) => c.contributionId !== contributionId));
+      showNotification("success", "Inscription accepted!");
+    } catch {
+      showNotification("error", "Failed to accept. Please try again.");
+    }
+  };
+
+  const handleReject = async (contributionId: string) => {
+    try {
+      await rejectContribution(contributionId);
+      setPendingContributions((prev) => prev.filter((c) => c.contributionId !== contributionId));
+      showNotification("success", "Inscription rejected.");
+    } catch {
+      showNotification("error", "Failed to reject. Please try again.");
+    }
   };
 
   if (loading) {
@@ -278,22 +344,122 @@ export default function DiaryDetail() {
           </h1>
 
           {/* Meta Information */}
-          <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs sm:text-sm text-gray-600">
-            <div>
-              <span className="font-medium">Visibility:</span>{" "}
-              {diary.visibility}
-            </div>
-            <div>
-              <span className="font-medium">Entry ID:</span> #{diary.recordId}
-            </div>
-            {diary.createdAt && (
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs sm:text-sm text-gray-600">
               <div>
-                <span className="font-medium">Created:</span>{" "}
-                {new Date(diary.createdAt).toLocaleDateString()}
+                <span className="font-medium">Visibility:</span>{" "}
+                {diary.visibility}
               </div>
+              <div>
+                <span className="font-medium">Entry ID:</span> #{diary.recordId}
+              </div>
+              {diary.createdAt && (
+                <div>
+                  <span className="font-medium">Created:</span>{" "}
+                  {new Date(diary.createdAt).toLocaleDateString()}
+                </div>
+              )}
+            </div>
+            {currentUserId && String(diary.userId) !== String(currentUserId) && (
+              <button
+                onClick={() => setShowInscribePanel(true)}
+                className="group inline-flex shrink-0 items-center gap-1.5 rounded-full border border-gray-300 bg-white/70 px-4 py-1.5 text-xs font-medium text-gray-700 backdrop-blur-sm transition hover:border-gray-900 hover:bg-gray-900 hover:text-white"
+              >
+                <svg className="h-3 w-3 transition group-hover:rotate-12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 20h9" /><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z" />
+                </svg>
+                Inscribe
+              </button>
             )}
           </div>
         </header>
+
+        {/* Inscribe Requests — owner only */}
+        {currentUserId && diary && String(diary.userId) === String(currentUserId) && (
+          <div className="mb-6">
+            <button
+              onClick={() => {
+                setShowInscribeRequests(!showInscribeRequests);
+              }}
+              className="inline-flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-gray-900 transition"
+            >
+              <span>Inscribe Requests</span>
+              {pendingContributions.length > 0 && (
+                <span className="inline-flex items-center justify-center h-5 min-w-5 rounded-full bg-gray-900 text-white text-[11px] font-semibold px-1.5">
+                  {pendingContributions.length}
+                </span>
+              )}
+              <svg
+                className={`h-4 w-4 transition-transform ${showInscribeRequests ? "rotate-180" : ""}`}
+                viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
+              >
+                <path d="M6 9l6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </button>
+
+            {showInscribeRequests && (
+              <div className="mt-3 rounded-2xl border border-gray-200 bg-white overflow-hidden">
+                {contributionsLoading && (
+                  <p className="px-5 py-4 text-sm text-gray-400">Loading requests...</p>
+                )}
+                {!contributionsLoading && pendingContributions.length === 0 && (
+                  <p className="px-5 py-4 text-sm text-gray-400">No pending inscribe requests.</p>
+                )}
+                {!contributionsLoading && pendingContributions.map((c, i) => {
+                  const isExpanded = expandedContributions.has(c.contributionId);
+                  const toggle = () =>
+                    setExpandedContributions((prev) => {
+                      const next = new Set(prev);
+                      isExpanded ? next.delete(c.contributionId) : next.add(c.contributionId);
+                      return next;
+                    });
+                  return (
+                    <div key={c.contributionId} className={i !== 0 ? "border-t border-gray-100" : ""}>
+                      {/* Header row — always visible */}
+                      <div className="flex items-center justify-between gap-3 px-5 py-3">
+                        <button
+                          onClick={toggle}
+                          className="flex items-center gap-2 text-sm text-gray-700 hover:text-gray-900 transition min-w-0"
+                        >
+                          <span className="font-medium">Contributor #{c.contributorId}</span>
+                          <svg
+                            className={`h-3.5 w-3.5 shrink-0 text-gray-400 transition-transform ${isExpanded ? "rotate-180" : ""}`}
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
+                          >
+                            <path d="M6 9l6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
+                          </svg>
+                        </button>
+                        <div className="flex shrink-0 gap-2">
+                          <button
+                            onClick={() => handleAccept(c.contributionId)}
+                            className="rounded-full bg-gray-900 text-white px-3 py-1 text-xs font-medium hover:opacity-80 transition"
+                          >
+                            Accept
+                          </button>
+                          <button
+                            onClick={() => handleReject(c.contributionId)}
+                            className="rounded-full border border-gray-300 text-gray-600 px-3 py-1 text-xs font-medium hover:bg-gray-100 transition"
+                          >
+                            Reject
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Dropdown content */}
+                      {isExpanded && (
+                        <div className="px-5 pb-4">
+                          <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap border-l-2 border-gray-200 pl-3">
+                            {c.content}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Content */}
         {/* Content - View Mode */}
@@ -347,7 +513,58 @@ export default function DiaryDetail() {
                 <span className="font-semibold">{totalPages} page</span>
               </div>
             )}
+
           </>
+        )}
+
+        {/* Inscribe Modal */}
+        {showInscribePanel && (
+          <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-4">
+            <div className="w-full max-w-lg bg-white rounded-2xl shadow-2xl overflow-hidden">
+              <div className="px-6 pt-6 pb-4 border-b border-gray-100">
+                <h2 className="text-base font-semibold text-gray-900">Inscribe your words</h2>
+                <p className="text-xs text-gray-400 mt-0.5">Saved as a new diary entry in your account</p>
+              </div>
+              <div className="p-6 space-y-4">
+                <textarea
+                  autoFocus
+                  placeholder="Continue the story, add your thoughts, or leave a response..."
+                  value={inscribeContent}
+                  onChange={(e) => setInscribeContent(e.target.value)}
+                  rows={8}
+                  className="w-full rounded-lg border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-black resize-none"
+                />
+                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <div>
+                    <p className="text-sm text-gray-700 font-medium">Visibility</p>
+                    <p className="text-xs text-gray-400">{inscribeVisibility === "Public" ? "Anyone can read this" : "Only you can read this"}</p>
+                  </div>
+                  <button
+                    onClick={() => setInscribeVisibility(inscribeVisibility === "Public" ? "Private" : "Public")}
+                    className={`relative inline-flex h-7 w-12 items-center rounded-full transition ${inscribeVisibility === "Public" ? "bg-black" : "bg-gray-300"}`}
+                  >
+                    <span className={`inline-block h-5 w-5 transform rounded-full bg-white transition ${inscribeVisibility === "Public" ? "translate-x-6" : "translate-x-1"}`} />
+                  </button>
+                </div>
+              </div>
+              <div className="px-6 pb-6 flex gap-3">
+                <button
+                  onClick={() => { setShowInscribePanel(false); setInscribeContent(""); }}
+                  disabled={isInscribing}
+                  className="flex-1 rounded-full border border-gray-300 px-5 py-2.5 text-sm font-medium hover:bg-gray-100 transition disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleInscribe}
+                  disabled={isInscribing || !inscribeContent.trim()}
+                  className="flex-1 rounded-full bg-black text-white px-5 py-2.5 text-sm font-medium hover:opacity-90 transition disabled:opacity-40"
+                >
+                  {isInscribing ? "Inscribing..." : "Inscribe"}
+                </button>
+              </div>
+            </div>
+          </div>
         )}
 
         {/* Content - Edit Mode */}

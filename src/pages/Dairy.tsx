@@ -15,6 +15,7 @@ export default function Diaries() {
   const [usernames, setUsernames] = useState<{ [key: string]: string }>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [visibilityFilter, setVisibilityFilter] = useState<"Public" | "Private">("Public");
 
   useEffect(() => {
     if (authUserId) {
@@ -110,6 +111,8 @@ export default function Diaries() {
       : content;
   };
 
+  const filteredDiaries = diaries.filter((d) => d.visibility === visibilityFilter);
+
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#f3f2ee] px-4 py-8 sm:px-6 sm:py-12 flex justify-center">
       <div className="pointer-events-none absolute -top-24 left-[-6rem] h-72 w-72 rounded-full bg-amber-200/50 blur-3xl" />
@@ -120,19 +123,39 @@ export default function Diaries() {
         {/* Header */}
         <header className="mb-8 sm:mb-12 text-center">
           <h1 className="text-3xl sm:text-5xl font-semibold tracking-tight text-gray-900">
-            Public <span className="italic">Diaries</span>
+            {visibilityFilter} <span className="italic">Diaries</span>
           </h1>
           <p className="mt-3 sm:mt-4 text-gray-600 text-xs sm:text-sm max-w-2xl mx-auto px-2 leading-relaxed">
             These are notebooks left open. Read quietly. Add a page if it speaks
             to you.
           </p>
+
+          {/* Public / Private toggle */}
+          <div className="mt-5 inline-flex items-center rounded-full border border-gray-200 bg-white/80 p-1 shadow-sm backdrop-blur-sm">
+            {(["Public", "Private"] as const).map((opt) => (
+              <button
+                key={opt}
+                onClick={() => setVisibilityFilter(opt)}
+                className={`rounded-full px-5 py-1.5 text-sm font-medium transition-all duration-200 ${
+                  visibilityFilter === opt
+                    ? "bg-gray-900 text-white shadow"
+                    : "text-gray-500 hover:text-gray-800"
+                }`}
+              >
+                {opt}
+              </button>
+            ))}
+          </div>
+
           {isLoggedIn && (
-            <button
-              onClick={handleWrite}
-              className="mt-6 sm:mt-8 inline-block rounded-full bg-gray-900 text-white px-6 sm:px-8 py-2 sm:py-2.5 shadow-[0_12px_24px_rgba(0,0,0,0.18)] hover:-translate-y-0.5 hover:shadow-[0_18px_30px_rgba(0,0,0,0.22)] transition font-medium text-sm sm:text-base"
-            >
-              ✏️ Start Writing
-            </button>
+            <div className="mt-6 sm:mt-8">
+              <button
+                onClick={handleWrite}
+                className="inline-block rounded-full bg-gray-900 text-white px-6 sm:px-8 py-2 sm:py-2.5 shadow-[0_12px_24px_rgba(0,0,0,0.18)] hover:-translate-y-0.5 hover:shadow-[0_18px_30px_rgba(0,0,0,0.22)] transition font-medium text-sm sm:text-base"
+              >
+                ✏️ Start Writing
+              </button>
+            </div>
           )}
         </header>
 
@@ -151,18 +174,18 @@ export default function Diaries() {
         )}
 
         {/* Empty State */}
-        {!loading && !error && diaries.length === 0 && (
+        {!loading && !error && filteredDiaries.length === 0 && (
           <div className="text-center py-12">
             <p className="text-gray-500">
-              No diaries found. Start writing one!
+              No {visibilityFilter.toLowerCase()} diaries found. Start writing one!
             </p>
           </div>
         )}
 
         {/* Diary List */}
-        {!loading && !error && diaries.length > 0 && (
+        {!loading && !error && filteredDiaries.length > 0 && (
           <section className="grid gap-4 sm:gap-6 md:gap-7 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
-            {diaries.map((diary) => (
+            {filteredDiaries.map((diary) => (
               <div
                 key={diary.recordId}
                 className="group relative cursor-pointer overflow-hidden rounded-3xl border border-gray-200/80 bg-[#fffefc] p-5 sm:p-7 shadow-[0_14px_30px_rgba(17,24,39,0.07)] ring-1 ring-white/80 transition duration-300 hover:-translate-y-1 hover:border-gray-300 hover:shadow-[0_24px_55px_rgba(17,24,39,0.14)]"
