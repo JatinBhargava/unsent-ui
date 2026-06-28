@@ -3,6 +3,16 @@ import { useState } from "react";
 
 const changelog = [
   {
+    version: "v1.5.0",
+    date: "June 2026",
+    highlights: [
+      "Added real-time chat with friends via a dedicated conversation panel.",
+      "Introduced Add Friend flow with friend request, pending, and accepted states.",
+      "Added Inscribe (contribution) feature — users can submit content additions to others' diaries.",
+      "Diary authors can now review, accept, or reject pending inscribe requests inline.",
+    ],
+  },
+  {
     version: "v1.4.0",
     date: "May 2026",
     highlights: [
