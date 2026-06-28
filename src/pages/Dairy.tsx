@@ -137,7 +137,7 @@ export default function Diaries() {
               <>Your <span className="italic">private</span> pages</>
             )}
           </h1>
-          <p className="mt-2 sm:mt-3 text-gray-500 text-xs sm:text-sm leading-relaxed hidden sm:block">
+          <p className="mt-2 sm:mt-3 text-gray-500 text-xs sm:text-sm leading-relaxed">
             {visibilityFilter === "Public"
               ? "These are notebooks left open. Read quietly. Add a page if it speaks to you."
               : "These pages are just for you. Write freely."}

@@ -96,8 +96,18 @@ export default function WritePage() {
       <div className="relative z-10 w-full max-w-2xl">
         <Navbar />
 
+        <button
+          onClick={() => navigate("/diaries")}
+          className="mt-6 inline-flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-700 transition"
+        >
+          <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M15 18l-6-6 6-6" />
+          </svg>
+          Back to Diaries
+        </button>
+
         {/* Hero */}
-        <div className="mt-8 mb-10 text-center">
+        <div className="mt-6 mb-10 text-center">
           <p className="text-xs tracking-widest uppercase text-gray-400 mb-3">New entry</p>
           <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight text-gray-900">
             What's on your mind?
