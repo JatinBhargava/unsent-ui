@@ -4,7 +4,7 @@ import Footer from "../components/Footer";
 
 export default function Home() {
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[#f3f2ee] text-gray-900">
+    <div className="relative min-h-screen overflow-hidden bg-[#f3f2ee] text-gray-900 p-2 sm:p-3">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_15%,rgba(255,255,255,0.85),transparent_42%),radial-gradient(circle_at_80%_80%,rgba(209,250,229,0.35),transparent_35%)]" />
       <Navbar />
       <Hero />

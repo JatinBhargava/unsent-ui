@@ -212,31 +212,36 @@ export default function Friends() {
           <p className="mb-4 text-center text-sm text-red-600">{error}</p>
         )}
 
-        {/* Incoming requests */}
+        {/* Incoming requests — carousel */}
         {!loading && pending.length > 0 && (
-          <section className="mb-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
-            {pending.map((user) => (
-              <article
-                key={user.sender_id}
-                className="rounded-3xl border border-gray-200/80 bg-[#fffefc] p-5 shadow-[0_10px_22px_rgba(17,24,39,0.06)] ring-1 ring-white/80"
-              >
-                <p className="text-xs uppercase tracking-wider text-gray-500">
-                  @{user.username}
-                </p>
-                <h3 className="mt-1 text-xl font-semibold tracking-tight text-gray-900">
-                  {user.displayName}
-                </h3>
-                <div className="mt-4 flex flex-wrap gap-2">
-                  <button
-                    disabled={actionPending === user.sender_id}
-                    onClick={() => handleAccept(user)}
-                    className="rounded-full bg-emerald-600 px-4 py-2 text-xs font-medium text-white hover:bg-emerald-700 disabled:opacity-50"
-                  >
-                    Accept
-                  </button>
-                </div>
-              </article>
-            ))}
+          <section className="mb-6">
+            <p className="mb-3 text-xs uppercase tracking-wider text-gray-500">
+              Requests · {pending.length}
+            </p>
+            <div className="flex gap-4 overflow-x-auto pb-2 snap-x snap-mandatory scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              {pending.map((user) => (
+                <article
+                  key={user.sender_id}
+                  className="snap-start shrink-0 w-[calc(50%-8px)] min-w-55 rounded-3xl border border-gray-200/80 bg-[#fffefc] p-5 shadow-[0_10px_22px_rgba(17,24,39,0.06)] ring-1 ring-white/80"
+                >
+                  <p className="text-xs uppercase tracking-wider text-gray-500">
+                    @{user.username}
+                  </p>
+                  <h3 className="mt-1 text-xl font-semibold tracking-tight text-gray-900">
+                    {user.displayName}
+                  </h3>
+                  <div className="mt-4">
+                    <button
+                      disabled={actionPending === user.sender_id}
+                      onClick={() => handleAccept(user)}
+                      className="rounded-full bg-emerald-600 px-4 py-2 text-xs font-medium text-white hover:bg-emerald-700 disabled:opacity-50"
+                    >
+                      Accept
+                    </button>
+                  </div>
+                </article>
+              ))}
+            </div>
           </section>
         )}
 
