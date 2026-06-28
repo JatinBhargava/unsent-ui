@@ -281,6 +281,8 @@ const [isEditMode, setIsEditMode] = useState(false);
       <div className="w-full max-w-3xl">
         <Navbar />
 
+        <div className="mt-8 sm:mt-12" />
+
         {/* Header */}
         <header className="mb-7 sm:mb-10 relative">
           {/* Top row: back button left, owner actions right */}
