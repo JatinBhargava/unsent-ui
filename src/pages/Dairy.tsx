@@ -172,7 +172,32 @@ export default function Diaries() {
 
         <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 items-start px-4 sm:px-8 lg:px-10 pb-16">
 
-          {/* Left sidebar — hidden on mobile, sticky on desktop */}
+          {/* Mobile: horizontal strip */}
+          <div className="lg:hidden w-full">
+            <div className="rounded-2xl border border-amber-200/60 bg-white/50 backdrop-blur-sm px-4 py-3">
+              <div className="flex items-center gap-2 mb-2.5">
+                <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-amber-700">Coming soon</span>
+                <span className="text-xs font-medium text-gray-700">Side Quests</span>
+              </div>
+              <div className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                {[
+                  { label: "Daily prompt", icon: "✦" },
+                  { label: "Chain stories", icon: "⟳" },
+                  { label: "Confessions", icon: "◎" },
+                  { label: "1-line diary", icon: "—" },
+                  { label: "Share a diary", icon: "↗" },
+                  { label: "Postcards to loved ones", icon: "♡" },
+                ].map((q) => (
+                  <span key={q.label} className="shrink-0 inline-flex items-center gap-1.5 rounded-full border border-amber-200/80 bg-amber-50/60 px-3 py-1 text-[11px] text-amber-700/80 whitespace-nowrap">
+                    <span className="text-amber-400 text-[10px]">{q.icon}</span>
+                    {q.label}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Desktop: sticky sidebar */}
           <aside className="hidden lg:block w-48 xl:w-52 shrink-0 sticky top-8">
             <div className="rounded-2xl border border-amber-200/60 bg-white/50 backdrop-blur-sm p-4 space-y-3">
               <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-amber-700">
@@ -190,6 +215,8 @@ export default function Diaries() {
                   { label: "Chain stories", icon: "⟳" },
                   { label: "Confessions", icon: "◎" },
                   { label: "1-line diary", icon: "—" },
+                  { label: "Share a diary", icon: "↗" },
+                  { label: "Postcards to loved ones", icon: "♡" },
                 ].map((q) => (
                   <li key={q.label} className="flex items-center gap-2 text-xs text-gray-400">
                     <span className="text-amber-400 text-[10px] w-3 shrink-0">{q.icon}</span>
