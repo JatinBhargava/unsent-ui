@@ -56,7 +56,7 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="flex items-center justify-between px-4 sm:px-6 md:px-10 py-4 sm:py-6">
+    <nav className="flex items-center justify-between px-4 sm:px-6 md:px-10 py-4 sm:py-6 text-gray-900">
       <h1
         onClick={navigateToHome}
         className="text-lg sm:text-xl font-semibold tracking-tight cursor-pointer hover:opacity-70 transition"

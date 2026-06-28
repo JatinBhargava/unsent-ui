@@ -1,4 +1,5 @@
 import Navbar from "../components/Navbar";
+import { linkifyEmail, getTermsLastUpdated } from "../utils/Util";
 
 const sections = [
   {
@@ -108,14 +109,10 @@ const sections = [
     title: "13. Changes to Terms",
     body: "Terms may be updated periodically. Continued use means acceptance of updated terms.",
   },
-  // {
-  //   title: "14. Contact Information",
-  //   bullets: [
-  //     "For support or legal concerns:",
-  //     // "Email: support@yourapp.com",
-  //     "Application: Unsent",
-  //   ],
-  // },
+  {
+    title: "14. Contact Information",
+    body: "For support or legal concerns, contact us at unsentoffical@gmail.com",
+  },
 ];
 
 export default function Terms() {
@@ -132,6 +129,9 @@ export default function Terms() {
             Terms & <span className="italic">Conditions</span>
           </h1>
           <p className="mt-3 sm:mt-4 text-gray-600 text-xs sm:text-sm max-w-2xl mx-auto px-2 leading-relaxed">
+            Last Updated: {getTermsLastUpdated()}
+          </p>
+          <p className="mt-2 text-gray-600 text-xs sm:text-sm max-w-2xl mx-auto px-2 leading-relaxed">
             Please review these terms carefully before using the Diary
             Application.
           </p>
@@ -146,7 +146,7 @@ export default function Terms() {
                 </h2>
                 {section.body && (
                   <p className="mt-3 text-sm sm:text-base leading-relaxed text-gray-700 max-w-3xl">
-                    {section.body}
+                    {linkifyEmail(section.body)}
                   </p>
                 )}
                 {section.intro && (

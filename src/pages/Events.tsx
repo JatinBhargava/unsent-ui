@@ -169,7 +169,7 @@ export default function Events() {
       <div className="pointer-events-none absolute -top-24 left-[-6rem] h-72 w-72 rounded-full bg-amber-200/45 blur-3xl" />
       <div className="pointer-events-none absolute bottom-[-6rem] right-[-5rem] h-72 w-72 rounded-full bg-cyan-200/45 blur-3xl" />
 
-      <div className="w-full max-w-5xl">
+      <div className="relative z-10 w-full max-w-5xl">
         <Navbar />
 
         <header className="mb-8 sm:mb-12 text-center">
