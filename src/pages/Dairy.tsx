@@ -111,7 +111,10 @@ export default function Diaries() {
       : content;
   };
 
-  const filteredDiaries = diaries.filter((d) => d.visibility === visibilityFilter);
+  const filteredDiaries = diaries.filter((d) => {
+    if (visibilityFilter === "Private") return d.visibility === "Private" && String(d.userId) === String(currentUserId);
+    return d.visibility === "Public";
+  });
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#f3f2ee]">
