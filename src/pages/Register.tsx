@@ -13,19 +13,38 @@ export default function Register() {
     username: "",
     displayName: "",
     password: "",
-    gender: undefined as string | undefined,
+    gender: "" as string | undefined,
     date_of_birth: "",
   });
+  const [emailError, setEmailError] = useState<string | null>(null);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    registerUser(form)
-      .then(() => {
-        navigateToLogin();
-      })
-      .catch((error) => {
+    setEmailError(null);
+    setPasswordError(null);
+    const payload = {
+      email: form.email.trim(),
+      username: form.username.trim(),
+      password: form.password,
+      ...(form.displayName.trim() && { displayName: form.displayName.trim() }),
+      ...(form.gender && { gender: form.gender }),
+      ...(form.date_of_birth && { date_of_birth: form.date_of_birth }),
+    };
+    try {
+      await registerUser(payload);
+      navigateToLogin();
+    } catch (error: unknown) {
+      const err = error as Error & { code?: string };
+      const msg = err.message?.toLowerCase() ?? "";
+      if (msg.includes("email")) {
+        setEmailError(err.message || "Invalid email format");
+      } else if (msg.includes("password")) {
+        setPasswordError(err.message || "Password is required");
+      } else {
         console.error("Registration failed:", error);
-      });
+      }
+    }
   };
 
   return (
@@ -45,13 +64,18 @@ export default function Register() {
         <form className="mt-10 space-y-4 text-left">
           {/* Email */}
           <div>
-            <label className="block text-xs text-gray-500 mb-1">Email</label>
+            <div className="flex items-center justify-between mb-1">
+              <label className="block text-xs text-gray-500">Email</label>
+              {emailError && (
+                <span className="text-xs text-red-500 animate-pulse">{emailError}</span>
+              )}
+            </div>
             <input
               type="email"
               placeholder="you@example.com"
               value={form.email}
-              onChange={(e) => setForm({ ...form, email: e.target.value })}
-              className="w-full rounded-lg border px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-black"
+              onChange={(e) => { setEmailError(null); setForm({ ...form, email: e.target.value }); }}
+              className={`w-full rounded-lg border px-4 py-3 text-sm focus:outline-none focus:ring-2 ${emailError ? "border-red-400 focus:ring-red-400" : "focus:ring-black"}`}
             />
           </div>
 
@@ -85,13 +109,18 @@ export default function Register() {
 
           {/* Password */}
           <div>
-            <label className="block text-xs text-gray-500 mb-1">Password</label>
+            <div className="flex items-center justify-between mb-1">
+              <label className="block text-xs text-gray-500">Password</label>
+              {passwordError && (
+                <span className="text-xs text-red-500 animate-pulse">{passwordError}</span>
+              )}
+            </div>
             <input
               type="password"
               placeholder="••••••••"
               value={form.password}
-              onChange={(e) => setForm({ ...form, password: e.target.value })}
-              className="w-full rounded-lg border px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-black"
+              onChange={(e) => { setPasswordError(null); setForm({ ...form, password: e.target.value }); }}
+              className={`w-full rounded-lg border px-4 py-3 text-sm focus:outline-none focus:ring-2 ${passwordError ? "border-red-400 focus:ring-red-400" : "focus:ring-black"}`}
             />
           </div>
 
@@ -109,6 +138,7 @@ export default function Register() {
                 }
                 className="w-full rounded-lg border px-4 py-3 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-black"
               >
+                <option value="" disabled>Select gender</option>
                 <option value="MALE">Male</option>
                 <option value="FEMALE">Female</option>
                 <option value="PREFER_NOT_TO_SAY">Prefer not to say</option>
