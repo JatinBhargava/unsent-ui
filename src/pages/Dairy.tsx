@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { getDiaries, type DiaryRecord } from "../services/Diary";
@@ -25,6 +26,33 @@ export default function Diaries() {
   const [error, setError] = useState<string | null>(null);
   const [visibilityFilter, setVisibilityFilter] = useState<"Public" | "Private">("Public");
   const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
+  const [authorFilter, setAuthorFilter] = useState<string | null>(null);
+  const [authorMenuOpen, setAuthorMenuOpen] = useState(false);
+  const [authorMenuPos, setAuthorMenuPos] = useState({ top: 0, left: 0 });
+  const funnelBtnRef = useRef<HTMLButtonElement>(null);
+  const authorMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!authorMenuOpen) return;
+    const close = (e: MouseEvent) => {
+      if (
+        !funnelBtnRef.current?.contains(e.target as Node) &&
+        !authorMenuRef.current?.contains(e.target as Node)
+      ) {
+        setAuthorMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", close);
+    return () => document.removeEventListener("mousedown", close);
+  }, [authorMenuOpen]);
+
+  const toggleAuthorMenu = () => {
+    if (funnelBtnRef.current) {
+      const r = funnelBtnRef.current.getBoundingClientRect();
+      setAuthorMenuPos({ top: r.bottom + 6, left: r.left });
+    }
+    setAuthorMenuOpen((o) => !o);
+  };
 
   useEffect(() => {
     if (!loading) return;
@@ -128,10 +156,18 @@ export default function Diaries() {
       : content;
   };
 
-  const filteredDiaries = diaries.filter((d) => {
+  const visibleDiaries = diaries.filter((d) => {
     if (visibilityFilter === "Private") return d.visibility === "Private" && String(d.userId) === String(currentUserId);
     return d.visibility === "Public";
   });
+
+  const authors = [...new Map(
+    visibleDiaries.map((d) => [String(d.userId), usernames[d.userId] || String(d.userId)])
+  ).entries()];
+
+  const filteredDiaries = authorFilter
+    ? visibleDiaries.filter((d) => String(d.userId) === authorFilter)
+    : visibleDiaries;
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#f3f2ee]">
@@ -167,7 +203,7 @@ export default function Diaries() {
               {(["Public", "Private"] as const).map((opt) => (
                 <button
                   key={opt}
-                  onClick={() => setVisibilityFilter(opt)}
+                  onClick={() => { setVisibilityFilter(opt); setAuthorFilter(null); }}
                   className={`rounded-full px-4 sm:px-5 py-1.5 text-xs sm:text-sm font-medium transition-all duration-200 ${
                     visibilityFilter === opt ? "bg-gray-900 text-white shadow" : "text-gray-500 hover:text-gray-800"
                   }`}
@@ -187,6 +223,24 @@ export default function Diaries() {
                 New entry
               </button>
             )}
+          </div>
+
+          <div className="mt-3 sm:mt-4 flex justify-center">
+            <button
+              ref={funnelBtnRef}
+              onClick={toggleAuthorMenu}
+              title="Filter by author"
+              className={`inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-xs sm:text-sm transition ${
+                authorFilter ? "border-gray-900 bg-gray-900 text-white" : "border-gray-200 bg-white/80 text-gray-500 hover:text-gray-800"
+              }`}
+            >
+              <svg className="h-3.5 w-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M4 5h16l-6 7.5V19l-4 2v-8.5L4 5z" />
+              </svg>
+              <span className={authorFilter ? "font-medium" : ""}>
+                {authorFilter ? (authors.find(([id]) => id === authorFilter)?.[1] ?? "Author") : "Author"}
+              </span>
+            </button>
           </div>
         </header>
 
@@ -361,6 +415,38 @@ export default function Diaries() {
           </div>
         </div>
       </div>
+
+      {authorMenuOpen && createPortal(
+        <div
+          ref={authorMenuRef}
+          style={{ top: authorMenuPos.top, left: authorMenuPos.left }}
+          className="fixed z-[9999] w-52 max-h-72 overflow-y-auto rounded-xl border border-gray-100 bg-white shadow-lg"
+        >
+          <button
+            onClick={() => { setAuthorFilter(null); setAuthorMenuOpen(false); }}
+            className={`w-full text-left px-4 py-2.5 text-xs transition hover:bg-gray-50 ${
+              !authorFilter ? "font-semibold text-gray-900" : "text-gray-600"
+            }`}
+          >
+            All authors
+          </button>
+          {authors.length === 0 && (
+            <p className="px-4 py-2.5 text-xs text-gray-400">No authors yet.</p>
+          )}
+          {authors.map(([id, name]) => (
+            <button
+              key={id}
+              onClick={() => { setAuthorFilter(id); setAuthorMenuOpen(false); }}
+              className={`w-full text-left px-4 py-2.5 text-xs transition hover:bg-gray-50 border-t border-gray-100 truncate ${
+                authorFilter === id ? "font-semibold text-gray-900" : "text-gray-600"
+              }`}
+            >
+              {name}
+            </button>
+          ))}
+        </div>,
+        document.body
+      )}
     </div>
   );
 }
