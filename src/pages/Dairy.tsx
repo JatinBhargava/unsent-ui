@@ -6,6 +6,14 @@ import { getUserById, getUserByEmail } from "../services/Auth";
 import { useAuth } from "../contexts/AuthContext";
 import { sendFriendRequest, getFriendRequestStatus, getIncomingRequests } from "../services/Friends";
 
+const LOADING_MESSAGES = [
+  "Gathering diaries to read…",
+  "Turning the pages…",
+  "Finding stories worth reading…",
+  "Dusting off old entries…",
+  "Almost there…",
+];
+
 export default function Diaries() {
   const navigate = useNavigate();
   const { isLoggedIn, userId: authUserId, email } = useAuth();
@@ -16,6 +24,15 @@ export default function Diaries() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [visibilityFilter, setVisibilityFilter] = useState<"Public" | "Private">("Public");
+  const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
+
+  useEffect(() => {
+    if (!loading) return;
+    const interval = setInterval(() => {
+      setLoadingMessageIndex((prev) => (prev + 1) % LOADING_MESSAGES.length);
+    }, 1800);
+    return () => clearInterval(interval);
+  }, [loading]);
 
   useEffect(() => {
     if (authUserId) {
@@ -237,8 +254,15 @@ export default function Diaries() {
           <div className="flex-1 min-w-0">
 
             {loading && (
-              <div className="flex items-center justify-center py-16 text-sm text-gray-400">
-                Loading diaries…
+              <div className="flex flex-col items-center justify-center gap-3 py-16 text-sm text-gray-400">
+                <div className="flex gap-1.5">
+                  <span className="h-2 w-2 rounded-full bg-amber-400 animate-dot-bounce [animation-delay:0ms]" />
+                  <span className="h-2 w-2 rounded-full bg-amber-400 animate-dot-bounce [animation-delay:150ms]" />
+                  <span className="h-2 w-2 rounded-full bg-amber-400 animate-dot-bounce [animation-delay:300ms]" />
+                </div>
+                <span key={loadingMessageIndex} className="animate-fade-in-up">
+                  {LOADING_MESSAGES[loadingMessageIndex]}
+                </span>
               </div>
             )}
 
