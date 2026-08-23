@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
+import RichTextEditor from "../components/RichTextEditor";
 import { createDiaryEntry } from "../services/Diary";
 import { getUserByEmail } from "../services/Auth";
 import { useAuth } from "../contexts/AuthContext";
@@ -17,8 +18,8 @@ export default function WritePage() {
     tags: "",
     isPublic: true,
   });
+  const [contentText, setContentText] = useState("");
 
-  const [charCount, setCharCount] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -38,15 +39,24 @@ export default function WritePage() {
     setPage({ ...page, title: e.target.value });
   };
 
-  const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setPage({ ...page, content: e.target.value });
-    setCharCount(e.target.value.length);
+  const handleContentChange = ({ html, text }: { html: string; text: string }) => {
+    setPage((p) => ({ ...p, content: html }));
+    setContentText(text);
   };
 
   const handlePublish = async () => {
-    if (!page.title.trim()) { showNotification("error", "Please enter a title"); return; }
-    if (!page.content.trim()) { showNotification("error", "Please write something"); return; }
-    if (!userId) { showNotification("error", "User ID not found. Please log in again."); return; }
+    if (!page.title.trim()) {
+      showNotification("error", "Please enter a title");
+      return;
+    }
+    if (!contentText.trim()) {
+      showNotification("error", "Please write something");
+      return;
+    }
+    if (!userId) {
+      showNotification("error", "User ID not found. Please log in again.");
+      return;
+    }
     setIsLoading(true);
     try {
       await createDiaryEntry({
@@ -66,12 +76,19 @@ export default function WritePage() {
   };
 
   const handleSaveDraft = async () => {
-    if (!page.title.trim()) { showNotification("error", "Please enter a title"); return; }
-    if (!userId) { showNotification("error", "User ID not found. Please log in again."); return; }
+    if (!page.title.trim()) {
+      showNotification("error", "Please enter a title");
+      return;
+    }
+    if (!userId) {
+      showNotification("error", "User ID not found. Please log in again.");
+      return;
+    }
     setIsLoading(true);
     try {
       await createDiaryEntry({
         userId,
+        title: page.title,
         content: page.content,
         visibility: page.isPublic ? "Public" : "Private",
         status: "Draft",
@@ -100,7 +117,15 @@ export default function WritePage() {
           onClick={() => navigate("/diaries")}
           className="mt-6 inline-flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-700 transition"
         >
-          <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg
+            className="h-3.5 w-3.5"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
             <path d="M15 18l-6-6 6-6" />
           </svg>
           Back to Diaries
@@ -108,7 +133,9 @@ export default function WritePage() {
 
         {/* Hero */}
         <div className="mt-6 mb-10 text-center">
-          <p className="text-xs tracking-widest uppercase text-gray-400 mb-3">New entry</p>
+          <p className="text-xs tracking-widest uppercase text-gray-400 mb-3">
+            New entry
+          </p>
           <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight text-gray-900">
             What's on your mind?
           </h1>
@@ -119,7 +146,6 @@ export default function WritePage() {
 
         {/* Form card */}
         <div className="rounded-3xl bg-white/60 backdrop-blur-sm border border-white/80 shadow-[0_8px_40px_rgba(0,0,0,0.06)] p-6 sm:p-8 space-y-6">
-
           {/* Title */}
           <input
             type="text"
@@ -130,30 +156,27 @@ export default function WritePage() {
           />
 
           {/* Content */}
-          <textarea
-            placeholder="Start writing here…"
-            value={page.content}
-            onChange={handleContentChange}
-            rows={14}
-            className="w-full bg-transparent border-0 resize-none text-sm sm:text-base text-gray-700 placeholder:text-gray-300 leading-relaxed focus:outline-none"
-          />
+          <RichTextEditor initialContent="" onChange={handleContentChange} />
 
           {/* Footer row */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-4 border-t border-gray-100">
-
             {/* Visibility + char count */}
             <div className="flex items-center gap-4">
               <button
                 onClick={() => setPage({ ...page, isPublic: !page.isPublic })}
                 className="flex items-center gap-2 text-xs text-gray-500 hover:text-gray-800 transition"
               >
-                <span className={`relative inline-flex h-5 w-9 items-center rounded-full transition ${page.isPublic ? "bg-gray-900" : "bg-gray-300"}`}>
-                  <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition ${page.isPublic ? "translate-x-4" : "translate-x-1"}`} />
+                <span
+                  className={`relative inline-flex h-5 w-9 items-center rounded-full transition ${page.isPublic ? "bg-gray-900" : "bg-gray-300"}`}
+                >
+                  <span
+                    className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition ${page.isPublic ? "translate-x-4" : "translate-x-1"}`}
+                  />
                 </span>
                 {page.isPublic ? "Public" : "Private"}
               </button>
-              {charCount > 0 && (
-                <span className="text-xs text-gray-400">{charCount} chars</span>
+              {contentText.length > 0 && (
+                <span className="text-xs text-gray-400">{contentText.length} chars</span>
               )}
             </div>
 

@@ -67,7 +67,7 @@ export interface FriendProfile {
 }
 
 export async function fetchUserById(userId: string): Promise<FriendProfile> {
-  const response = await fetch(`${API_BASE_URL}/auth/user/${userId}`, {
+  const response = await fetch(`${API_BASE_URL}/auth/user/${userId}/public`, {
     method: "GET",
     headers: authHeaders(),
   });

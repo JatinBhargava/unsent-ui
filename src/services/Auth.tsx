@@ -5,6 +5,11 @@ import axios from "axios";
 
 const API_BASE_URL = getApiBaseUrl();
 
+function authHeaders() {
+  const token = localStorage.getItem("authToken");
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
 export async function registerUser(formData: RegisterRequest) {
   const response = await fetch(`${API_BASE_URL}/auth/register`, {
     method: "POST",
@@ -42,6 +47,7 @@ export async function getUserByEmail(email: string) {
       params: {
         email: email,
       },
+      headers: authHeaders(),
     });
 
     return response.data;
@@ -52,7 +58,29 @@ export async function getUserByEmail(email: string) {
 
 export async function getUserById(userId: number | string) {
   try {
-    const response = await axios.get(`${API_BASE_URL}/auth/user/${userId}`);
+    const response = await axios.get(`${API_BASE_URL}/auth/user/${userId}`, {
+      headers: authHeaders(),
+    });
+
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}
+
+export interface PublicUser {
+  userId: string;
+  username: string;
+  displayName: string;
+}
+
+// Use this instead of getUserById whenever you only need to show another
+// user's name (feed byline, friends list) — it omits gender/dateOfBirth/email.
+export async function getPublicUserById(userId: number | string): Promise<PublicUser> {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/auth/user/${userId}/public`, {
+      headers: authHeaders(),
+    });
 
     return response.data;
   } catch (error) {
@@ -74,7 +102,8 @@ export async function updateUserProfile(
   try {
     const response = await axios.put(
       `${API_BASE_URL}/auth/user/${userId}/profile`,
-      payload
+      payload,
+      { headers: authHeaders() }
     );
     return response.data;
   } catch (error) {
