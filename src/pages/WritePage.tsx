@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
+import RichTextEditor from "../components/RichTextEditor";
 import { createDiaryEntry } from "../services/Diary";
 import { getUserByEmail } from "../services/Auth";
 import { useAuth } from "../contexts/AuthContext";
@@ -17,8 +18,8 @@ export default function WritePage() {
     tags: "",
     isPublic: true,
   });
+  const [contentText, setContentText] = useState("");
 
-  const [charCount, setCharCount] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -38,9 +39,9 @@ export default function WritePage() {
     setPage({ ...page, title: e.target.value });
   };
 
-  const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setPage({ ...page, content: e.target.value });
-    setCharCount(e.target.value.length);
+  const handleContentChange = ({ html, text }: { html: string; text: string }) => {
+    setPage((p) => ({ ...p, content: html }));
+    setContentText(text);
   };
 
   const handlePublish = async () => {
@@ -48,7 +49,7 @@ export default function WritePage() {
       showNotification("error", "Please enter a title");
       return;
     }
-    if (!page.content.trim()) {
+    if (!contentText.trim()) {
       showNotification("error", "Please write something");
       return;
     }
@@ -155,13 +156,7 @@ export default function WritePage() {
           />
 
           {/* Content */}
-          <textarea
-            placeholder="Start writing here…"
-            value={page.content}
-            onChange={handleContentChange}
-            rows={14}
-            className="w-full bg-transparent border-0 resize-none text-sm sm:text-base text-gray-700 placeholder:text-gray-300 leading-relaxed focus:outline-none"
-          />
+          <RichTextEditor initialContent="" onChange={handleContentChange} />
 
           {/* Footer row */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-4 border-t border-gray-100">
@@ -180,8 +175,8 @@ export default function WritePage() {
                 </span>
                 {page.isPublic ? "Public" : "Private"}
               </button>
-              {charCount > 0 && (
-                <span className="text-xs text-gray-400">{charCount} chars</span>
+              {contentText.length > 0 && (
+                <span className="text-xs text-gray-400">{contentText.length} chars</span>
               )}
             </div>
 

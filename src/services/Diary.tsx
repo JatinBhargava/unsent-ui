@@ -73,10 +73,17 @@ export async function getDiaries() {
 }
 
 export async function getDiaryById(id: number) {
+  const token = localStorage.getItem("authToken");
+
+  if (!token) {
+    throw new Error("No authentication token found");
+  }
+
   const response = await fetch(`${API_BASE_URL}/diary/${id}`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
     },
   });
 

@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
+import RichTextEditor from "../components/RichTextEditor";
 import { useNotification } from "../hooks/useNotification";
 import { useAuth } from "../contexts/AuthContext";
 import { getUserByEmail } from "../services/Auth";
+import { isRichContent, sanitizeForDisplay, getPlainText } from "../utils/richContent";
 import {
   getDiaryById,
   updateDiaryEntry,
@@ -40,6 +42,7 @@ export default function DiaryDetail() {
 const [isEditMode, setIsEditMode] = useState(false);
   const [editTitle, setEditTitle] = useState("");
   const [editContent, setEditContent] = useState("");
+  const [editContentText, setEditContentText] = useState("");
   const [editVisibility, setEditVisibility] = useState("Public");
   const [editStatus, setEditStatus] = useState("ACTIVE");
   const [isSaving, setIsSaving] = useState(false);
@@ -64,9 +67,14 @@ const [isEditMode, setIsEditMode] = useState(false);
         setDiary(data);
         setError(null);
 
-        // Calculate pages (assuming ~2000 chars per page)
-        const pages = Math.ceil((data.content?.length || 0) / 2000);
-        setTotalPages(Math.max(1, pages));
+        // Rich (formatted) entries are always rendered in full — slicing the
+        // HTML by raw character count would risk cutting a tag in half.
+        if (isRichContent(data.content || "")) {
+          setTotalPages(1);
+        } else {
+          const pages = Math.ceil((data.content?.length || 0) / 2000);
+          setTotalPages(Math.max(1, pages));
+        }
         setCurrentPage(1);
       } catch (err) {
         setError("Failed to load diary. Please try again.");
@@ -111,6 +119,7 @@ const [isEditMode, setIsEditMode] = useState(false);
     if (diary) {
       setEditTitle(diary.title || "");
       setEditContent(diary.content || "");
+      setEditContentText(getPlainText(diary.content || ""));
       setEditVisibility(diary.visibility || "Public");
       setEditStatus(diary.status || "ACTIVE");
       setIsEditMode(true);
@@ -139,9 +148,14 @@ const [isEditMode, setIsEditMode] = useState(false);
       });
 
       setIsEditMode(false);
-      // Reset pagination after content update
-      const pages = Math.ceil(editContent.length / 2000);
-      setTotalPages(Math.max(1, pages));
+      // Reset pagination after content update — rich (formatted) content is
+      // always rendered in full, never sliced by raw character count.
+      if (isRichContent(editContent)) {
+        setTotalPages(1);
+      } else {
+        const pages = Math.ceil(editContent.length / 2000);
+        setTotalPages(Math.max(1, pages));
+      }
       setCurrentPage(1);
       showNotification("success", "Changes saved successfully!");
     } catch (err) {
@@ -476,9 +490,16 @@ const [isEditMode, setIsEditMode] = useState(false);
         {!isEditMode && (
           <>
             <article className="rounded-2xl border border-[#ebe7dc]/60 bg-[#f3f2ee]/95 p-2 sm:p-3 mb-8 sm:mb-12">
-              <div className="whitespace-pre-wrap text-gray-700 leading-relaxed text-sm sm:text-base">
-                {getPageContent()}
-              </div>
+              {isRichContent(diary.content) ? (
+                <div
+                  className="text-gray-700 leading-relaxed text-sm sm:text-base [&_u]:underline"
+                  dangerouslySetInnerHTML={{ __html: sanitizeForDisplay(diary.content) }}
+                />
+              ) : (
+                <div className="whitespace-pre-wrap text-gray-700 leading-relaxed text-sm sm:text-base">
+                  {getPageContent()}
+                </div>
+              )}
             </article>
 
             {/* Page Navigation */}
@@ -598,16 +619,20 @@ const [isEditMode, setIsEditMode] = useState(false);
             {/* Content */}
             <div>
               <label className="block text-xs sm:text-sm text-gray-500 font-medium mb-2">
-                Content * ({editContent.length} characters)
+                Content * ({editContentText.length} characters)
               </label>
 
-              <textarea
-                placeholder="Write your thoughts here..."
-                value={editContent}
-                onChange={(e) => setEditContent(e.target.value)}
-                rows={16}
-                className="w-full rounded-lg border px-4 py-3 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-black resize-none"
-              />
+              <div className="w-full rounded-lg border px-4 py-3 focus-within:ring-2 focus-within:ring-black">
+                <RichTextEditor
+                  initialContent={editContent}
+                  placeholder="Write your thoughts here..."
+                  minHeightClassName="min-h-[16rem]"
+                  onChange={({ html, text }) => {
+                    setEditContent(html);
+                    setEditContentText(text);
+                  }}
+                />
+              </div>
             </div>
 
             {/* Visibility */}

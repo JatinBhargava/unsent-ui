@@ -3,9 +3,10 @@ import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { getDiaries, type DiaryRecord } from "../services/Diary";
-import { getUserById, getUserByEmail } from "../services/Auth";
+import { getPublicUserById, getUserByEmail } from "../services/Auth";
 import { useAuth } from "../contexts/AuthContext";
 import { sendFriendRequest, getFriendRequestStatus, getIncomingRequests } from "../services/Friends";
+import { getPlainText } from "../utils/richContent";
 
 const LOADING_MESSAGES = [
   "Gathering diaries to read…",
@@ -86,7 +87,7 @@ export default function Diaries() {
         for (const diary of diaryList) {
           if (diary.userId && !usernameMap[diary.userId]) {
             try {
-              const user = await getUserById(diary.userId);
+              const user = await getPublicUserById(diary.userId);
               usernameMap[diary.userId] = user.displayName;
             } catch (error) {
               usernameMap[diary.userId] = String(diary.userId);
@@ -340,7 +341,8 @@ export default function Diaries() {
               /* Mobile: full-width stacked feed. Tablet+: 2-col grid. Desktop+: 3-col */
               <section className="flex flex-col gap-3 sm:grid sm:grid-cols-2 sm:gap-5 xl:grid-cols-3 xl:gap-6">
                 {filteredDiaries.map((diary, idx) => {
-                  const wordCount = diary.content?.trim().split(/\s+/).length ?? 0;
+                  const plainContent = getPlainText(diary.content || "");
+                  const wordCount = plainContent.trim().split(/\s+/).filter(Boolean).length;
                   const readMins = Math.max(1, Math.round(wordCount / 200));
                   const authorName = usernames[diary.userId] || "—";
                   const initials = authorName.split(" ").map((w: string) => w[0]).join("").slice(0, 2).toUpperCase();
@@ -375,7 +377,7 @@ export default function Diaries() {
                     </h3>
 
                     <p className="text-xs text-gray-500 leading-relaxed line-clamp-3 sm:line-clamp-4 flex-1 mb-3">
-                      {truncateContent(diary.content, 200)}
+                      {truncateContent(plainContent, 200)}
                     </p>
 
                     <div className="flex items-center justify-between gap-2 pt-3 border-t border-gray-100">

@@ -3,6 +3,7 @@ import {
   useState,
   useContext,
   useEffect,
+  useCallback,
   type ReactNode,
 } from "react";
 
@@ -17,10 +18,10 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Helper function to decode JWT and extract userId and email
+// Helper function to decode JWT and extract userId, email, and expiry
 function decodeToken(
   token: string,
-): { userId?: string; id?: string; sub?: string } | null {
+): { userId?: string; id?: string; sub?: string; exp?: number } | null {
   try {
     const parts = token.split(".");
     if (parts.length !== 3) return null;
@@ -31,6 +32,10 @@ function decodeToken(
     return null;
   }
 }
+
+// setTimeout's delay is a 32-bit signed int internally; anything longer just
+// never fires. Cap it so a far-future exp doesn't silently skip scheduling.
+const MAX_TIMEOUT_MS = 2 ** 31 - 1;
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoggedIn, setIsLoggedIn] = useState(
@@ -83,13 +88,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setEmail(extractedEmail);
   };
 
-  const logout = () => {
+  const logout = useCallback(() => {
     localStorage.removeItem("authToken");
     setToken(null);
     setIsLoggedIn(false);
     setUserId(null);
     setEmail(null);
-  };
+  }, []);
+
+  // Auto-logout once the JWT's own expiry is reached, so a stale token
+  // doesn't leave the UI showing "logged in" after it's no longer valid.
+  useEffect(() => {
+    if (!token) return;
+
+    const exp = decodeToken(token)?.exp;
+    if (!exp) return;
+
+    const msUntilExpiry = exp * 1000 - Date.now();
+    if (msUntilExpiry <= 0) {
+      logout();
+      return;
+    }
+
+    const timeoutId = window.setTimeout(logout, Math.min(msUntilExpiry, MAX_TIMEOUT_MS));
+    return () => window.clearTimeout(timeoutId);
+  }, [token, logout]);
 
   return (
     <AuthContext.Provider
