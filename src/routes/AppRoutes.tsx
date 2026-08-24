@@ -14,6 +14,7 @@ import About from "../pages/About";
 import Terms from "../pages/Terms";
 import Privacy from "../pages/Privacy";
 import Changelog from "../pages/Changelog";
+import RouteMeta from "../components/RouteMeta";
 import { AuthProvider } from "../contexts/AuthContext";
 import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -73,6 +74,7 @@ export default function AppRoutes() {
   return (
     <BrowserRouter>
       <AuthProvider>
+        <RouteMeta />
         <OAuthCallbackHandler />
         <Routes>
           <Route path="/" element={<Home />} />

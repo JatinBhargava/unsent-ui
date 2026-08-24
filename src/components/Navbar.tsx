@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { useAuth } from "../contexts/AuthContext";
@@ -51,31 +51,31 @@ export default function Navbar() {
   const navigateToWrite    = () => { navigate("/write");    setMenuOpen(false); };
   const navigateToEvents   = () => { navigate("/events");   setMenuOpen(false); };
   const navigateToFriends  = () => { navigate("/friends");  setMenuOpen(false); };
-  const navigateToHome     = () => { navigate("/");         setMenuOpen(false); };
   const handleLogout       = () => { logout(); navigate("/"); setMenuOpen(false); setUserDropdownOpen(false); };
 
   return (
     <nav ref={navRef} className="flex items-center justify-between py-2 text-gray-900">
-      <h1
-        onClick={navigateToHome}
-        className="text-base font-semibold tracking-tight cursor-pointer hover:opacity-60 transition select-none"
+      <Link
+        to="/"
+        onClick={() => setMenuOpen(false)}
+        className="text-base font-semibold tracking-tight hover:opacity-60 transition select-none"
       >
         Unsent
-      </h1>
+      </Link>
 
       {/* Desktop Menu */}
       <div className="hidden sm:flex items-center gap-5 md:gap-7 text-[13px] text-gray-600">
         {!isLoggedIn && (
-          <a onClick={navigateToWinOfTheDay} className="hover:text-gray-900 cursor-pointer transition">
+          <Link to="/wod" onClick={() => setMenuOpen(false)} className="hover:text-gray-900 transition">
             Win of the Day
-          </a>
+          </Link>
         )}
         {isLoggedIn && (
           <>
-            <a onClick={navigateToWrite} className="hover:text-gray-900 cursor-pointer transition font-medium text-gray-900">Write</a>
-            <a onClick={navigateToDiaries} className="hover:text-gray-900 cursor-pointer transition">Diaries</a>
-            <a onClick={navigateToFriends} className="hover:text-gray-900 cursor-pointer transition">Friends</a>
-            <a onClick={navigateToEvents} className="hover:text-gray-900 cursor-pointer transition">Events</a>
+            <Link to="/write" onClick={() => setMenuOpen(false)} className="hover:text-gray-900 transition font-medium text-gray-900">Write</Link>
+            <Link to="/diaries" onClick={() => setMenuOpen(false)} className="hover:text-gray-900 transition">Diaries</Link>
+            <Link to="/friends" onClick={() => setMenuOpen(false)} className="hover:text-gray-900 transition">Friends</Link>
+            <Link to="/events" onClick={() => setMenuOpen(false)} className="hover:text-gray-900 transition">Events</Link>
           </>
         )}
 
