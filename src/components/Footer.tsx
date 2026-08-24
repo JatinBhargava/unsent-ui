@@ -8,7 +8,7 @@ export default function Footer() {
         <div className="flex flex-col md:flex-row justify-between gap-8 md:gap-12">
           {/* Brand */}
           <div className="max-w-sm">
-            <h3 className="text-base sm:text-lg font-semibold">Unsent</h3>
+            <h2 className="text-base sm:text-lg font-semibold">Unsent</h2>
             <p className="mt-3 text-xs sm:text-sm text-gray-600">
               A shared space for quiet writing.
               <br />
@@ -19,28 +19,28 @@ export default function Footer() {
           {/* Links */}
           <div className="grid grid-cols-2 md:grid-cols-3 gap-6 sm:gap-10 text-xs sm:text-sm">
             <div>
-              <h4 className="mb-3 font-medium">Product</h4>
+              <h2 className="mb-3 font-medium">Product</h2>
               <ul className="space-y-2 text-gray-600">
                 <li>
-                  <a href="#" className="hover:text-black">
+                  <Link to="/write" className="hover:text-black">
                     Write
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a href="#" className="hover:text-black">
+                  <Link to="/diaries" className="hover:text-black">
                     Stories
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a href="#" className="hover:text-black">
+                  <Link to="/events" className="hover:text-black">
                     Community
-                  </a>
+                  </Link>
                 </li>
               </ul>
             </div>
 
             <div>
-              <h4 className="mb-3 font-medium">Company</h4>
+              <h2 className="mb-3 font-medium">Company</h2>
               <ul className="space-y-2 text-gray-600">
                 <li>
                   <Link to="/about" className="hover:text-black">
@@ -61,7 +61,7 @@ export default function Footer() {
             </div>
 
             <div>
-              <h4 className="mb-3 font-medium">Open Source</h4>
+              <h2 className="mb-3 font-medium">Open Source</h2>
               <ul className="space-y-2 text-gray-600">
                 <li>
                   <a

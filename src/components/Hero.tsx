@@ -39,7 +39,11 @@ export default function Hero() {
         </button>
       </div>
 
-      <div className="mt-12 grid w-full max-w-4xl grid-cols-1 gap-3 sm:grid-cols-3">
+      <h2 className="mt-12 text-[11px] font-semibold uppercase tracking-[0.2em] text-gray-500">
+        What writing here feels like
+      </h2>
+
+      <div className="mt-4 grid w-full max-w-4xl grid-cols-1 gap-3 sm:grid-cols-3">
         <div className="rounded-2xl border border-gray-200/80 bg-white/75 px-4 py-3 text-left shadow-sm backdrop-blur-sm">
           <p className="text-[11px] uppercase tracking-[0.14em] text-gray-500">Mood</p>
           <p className="mt-1 text-sm font-medium text-gray-800">Quiet and honest writing</p>
