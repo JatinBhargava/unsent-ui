@@ -35,6 +35,11 @@ const ROUTE_META: Record<string, PageMeta> = {
     description:
       "Write a diary page on Unsent. Keep it private, or publish it for others to read and add to.",
   },
+  "/postcards": {
+    title: "Postcards to loved ones · Unsent",
+    description:
+      "Write a postcard on Unsent and send it straight to someone's inbox — address the front, turn it over, say the thing you keep meaning to say.",
+  },
   "/friends": {
     title: "Your circle — friends on Unsent",
     description:

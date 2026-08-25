@@ -1,4 +1,61 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+
+/* shadcn/ui design tokens (neutral base, warmed to match Unsent's paper).
+   Deliberately no global `body`/`*` base overrides — the existing pages set
+   their own background and border colours, and a global reset would repaint
+   them. shadcn components below reference these vars explicitly instead. */
+:root {
+  --radius: 0.75rem;
+
+  --background: oklch(0.98 0.004 85);
+  --foreground: oklch(0.24 0.006 60);
+  --card: oklch(0.99 0.006 85);
+  --card-foreground: oklch(0.24 0.006 60);
+  --popover: oklch(0.99 0.006 85);
+  --popover-foreground: oklch(0.24 0.006 60);
+  --primary: oklch(0.24 0.006 60);
+  --primary-foreground: oklch(0.98 0.004 85);
+  --secondary: oklch(0.95 0.012 85);
+  --secondary-foreground: oklch(0.24 0.006 60);
+  --muted: oklch(0.95 0.012 85);
+  --muted-foreground: oklch(0.55 0.012 65);
+  --accent: oklch(0.94 0.03 75);
+  --accent-foreground: oklch(0.32 0.04 55);
+  --destructive: oklch(0.58 0.21 25);
+  --destructive-foreground: oklch(0.98 0.004 85);
+  --border: oklch(0.9 0.012 80);
+  --input: oklch(0.88 0.014 80);
+  --ring: oklch(0.62 0.05 70);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
 
 html,
 body,
@@ -36,4 +93,48 @@ body,
 
 .animate-dot-bounce {
   animation: dot-bounce 1.2s ease-in-out infinite;
+}
+
+/* Postcard flip — the address side and the letter side are two faces of one
+   card, so composing reads as turning a real postcard over. */
+.letter-scene {
+  perspective: 1800px;
+}
+
+.letter-card {
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.letter-card.is-flipped {
+  transform: rotateY(180deg);
+}
+
+.letter-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.letter-face--back {
+  transform: rotateY(180deg);
+}
+
+/* Ruled paper. The 28px rhythm is shared with the message textarea's
+   line-height so the writing sits on the lines instead of drifting off them. */
+.letter-ruled {
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent 27px,
+    rgba(120, 113, 108, 0.22) 28px
+  );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .letter-card {
+    transition: none;
+  }
 }
