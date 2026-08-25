@@ -3,7 +3,7 @@ pipeline {
 
   environment {
     IMAGE_NAME = "jatindocker623/unsent-ui"
-    IMAGE_TAG  = "1.0.0-SNAPSHOT"
+    IMAGE_TAG  = "26.1.1"
   }
 
   options {
