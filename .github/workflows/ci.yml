@@ -62,8 +62,8 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     if: |
-      github.event_name == 'push' && 
-      (startsWith(github.ref, 'refs/heads/develop') || 
+      (github.event_name == 'push' || github.event_name == 'workflow_dispatch') &&
+      (startsWith(github.ref, 'refs/heads/develop') ||
        startsWith(github.ref, 'refs/heads/master') || startsWith(github.ref, 'refs/heads/release'))
 
     steps:
@@ -125,8 +125,9 @@ jobs:
     needs: docker
     runs-on: ubuntu-latest
     if: |
-      startsWith(github.ref, 'refs/heads/release') &&
-      inputs.create_tag == true
+      github.event_name == 'workflow_dispatch' &&
+      inputs.create_tag &&
+      startsWith(github.ref, 'refs/heads/release')
 
     steps:
       - name: Checkout code
@@ -158,7 +159,7 @@ jobs:
           if [ "${{ needs.tag.result }}" == "success" ]; then
             echo "🏷️ Tag: ui-${{ env.IMAGE_TAG }}-${{ github.run_number }} created"
           elif [ "${{ needs.tag.result }}" == "skipped" ]; then
-            echo "⏭️ Tag: skipped (branch not develop/master)"
+            echo "⏭️ Tag: skipped (needs a manual run on a release/** branch with 'Create a Git tag' checked)"
           else
             echo "❌ Tag: FAILED"
           fi
