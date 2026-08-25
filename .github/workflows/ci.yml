@@ -79,7 +79,7 @@ jobs:
       - name: Set version
         id: version
         run: |
-          BUILD_TAG="${{ env.IMAGE_TAG }}-${{ github.run_number }}"
+          BUILD_TAG="${{ env.IMAGE_TAG }}"
           echo "BUILD_TAG=$BUILD_TAG" >> $GITHUB_OUTPUT
 
       - name: Validate Docker credentials
