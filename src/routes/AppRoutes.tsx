@@ -15,6 +15,7 @@ import Terms from "../pages/Terms";
 import Privacy from "../pages/Privacy";
 import Changelog from "../pages/Changelog";
 import RouteMeta from "../components/RouteMeta";
+import RouteSpeedInsights from "../components/RouteSpeedInsights";
 import { AuthProvider } from "../contexts/AuthContext";
 import { Suspense, lazy, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -84,6 +85,7 @@ export default function AppRoutes() {
     <BrowserRouter>
       <AuthProvider>
         <RouteMeta />
+        <RouteSpeedInsights />
         <OAuthCallbackHandler />
         <Suspense fallback={null}>
           <Routes>
