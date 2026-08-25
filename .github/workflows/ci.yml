@@ -64,7 +64,7 @@ jobs:
     if: |
       github.event_name == 'push' && 
       (startsWith(github.ref, 'refs/heads/develop') || 
-       startsWith(github.ref, 'refs/heads/master'))
+       startsWith(github.ref, 'refs/heads/master') || startsWith(github.ref, 'refs/heads/release'))
 
     steps:
       - name: Checkout code
