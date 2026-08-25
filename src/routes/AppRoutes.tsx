@@ -16,9 +16,13 @@ import Privacy from "../pages/Privacy";
 import Changelog from "../pages/Changelog";
 import RouteMeta from "../components/RouteMeta";
 import { AuthProvider } from "../contexts/AuthContext";
-import { useEffect } from "react";
+import { Suspense, lazy, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+
+// Postcards pulls in MUI + emotion. Lazy so that weight lands only on the
+// route that uses it, instead of in every page's bundle.
+const Postcards = lazy(() => import("../pages/Postcards"));
 
 function OAuthCallbackHandler() {
   const location = useLocation();
@@ -65,6 +69,11 @@ function ProtectedEventsRoute() {
   return isLoggedIn ? <Events /> : <Navigate to="/login" replace />;
 }
 
+function ProtectedPostcardsRoute() {
+  const { isLoggedIn } = useAuth();
+  return isLoggedIn ? <Postcards /> : <Navigate to="/login" replace />;
+}
+
 function ProtectedConversationRoute() {
   const { isLoggedIn } = useAuth();
   return isLoggedIn ? <Conversation /> : <Navigate to="/login" replace />;
@@ -76,24 +85,30 @@ export default function AppRoutes() {
       <AuthProvider>
         <RouteMeta />
         <OAuthCallbackHandler />
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/oauth-success" element={null} />
-          <Route path="/diaries" element={<ProtectedDiariesRoute />} />
-          <Route path="/diary/:id" element={<ProtectedDiaryDetailRoute />} />
-          <Route path="/write" element={<ProtectedWriteRoute />} />
-          <Route path="/wod" element={<WinOfTheDay />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/privacy" element={<Privacy />} />
-          <Route path="/terms" element={<Terms />} />
-          <Route path="/changelog" element={<Changelog />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/events" element={<ProtectedEventsRoute />} />
-          <Route path="/friends" element={<Friends />} />
-          <Route path="/messages/conversation/:id" element={<ProtectedConversationRoute />} />
-        </Routes>
+        <Suspense fallback={null}>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/oauth-success" element={null} />
+            <Route path="/diaries" element={<ProtectedDiariesRoute />} />
+            <Route path="/diary/:id" element={<ProtectedDiaryDetailRoute />} />
+            <Route path="/write" element={<ProtectedWriteRoute />} />
+            <Route path="/postcards" element={<ProtectedPostcardsRoute />} />
+            <Route path="/wod" element={<WinOfTheDay />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/terms" element={<Terms />} />
+            <Route path="/changelog" element={<Changelog />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/events" element={<ProtectedEventsRoute />} />
+            <Route path="/friends" element={<Friends />} />
+            <Route
+              path="/messages/conversation/:id"
+              element={<ProtectedConversationRoute />}
+            />
+          </Routes>
+        </Suspense>
       </AuthProvider>
     </BrowserRouter>
   );
