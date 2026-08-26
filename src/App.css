@@ -138,3 +138,123 @@ body,
     transition: none;
   }
 }
+
+/* ---------------------------------------------------------------------------
+   Opened postcard. The card sits half inside the envelope, front side showing;
+   opening lifts it clear of the pocket and turns it over to the message.
+   One state class drives the whole sequence, so the timings stay in step.
+--------------------------------------------------------------------------- */
+.envelope-scene {
+  perspective: 1600px;
+}
+
+.envelope {
+  position: relative;
+  height: 30rem;
+}
+
+.envelope-back,
+.envelope-front {
+  position: absolute;
+  left: 0;
+  right: 0;
+  border-radius: 0.75rem 0.75rem 1rem 1rem;
+}
+
+.envelope-back {
+  bottom: 0;
+  height: 55%;
+  z-index: 1;
+  background: #eac7bd;
+}
+
+/* The pocket front overlaps the card, which is what makes the card read as
+   tucked inside rather than resting on top. It drops away as the card rises. */
+.envelope-front {
+  bottom: 0;
+  height: 42%;
+  z-index: 3;
+  background: linear-gradient(#f4dcd5, #efd0c7);
+  box-shadow:
+    0 -1px 0 rgba(196, 87, 107, 0.14),
+    0 -18px 40px -30px rgba(80, 45, 40, 0.5);
+  transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.envelope.is-open .envelope-front {
+  transform: translateY(18%);
+}
+
+/* The wax seal rides with the pocket, so it stays stuck to the envelope
+   rather than floating once the card lifts away. */
+.envelope-seal {
+  position: absolute;
+  left: 50%;
+  bottom: 42%;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  margin-left: -1.375rem;
+  margin-bottom: -1.375rem;
+  border-radius: 999px;
+  background: #c4576b;
+  color: #fff;
+  font-size: 0.95rem;
+  box-shadow: 0 6px 16px -6px rgba(196, 87, 107, 0.9);
+  transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.envelope.is-open .envelope-seal {
+  transform: translateY(calc(0.18 * 12.6rem)) scale(0.9);
+}
+
+.envelope-card {
+  position: absolute;
+  left: 6%;
+  right: 6%;
+  top: 0;
+  height: 78%;
+  z-index: 2;
+  transform: translateY(30%);
+  transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.envelope.is-open .envelope-card {
+  transform: translateY(-2%);
+}
+
+/* The turn waits for the lift to finish, so the card clears the pocket before
+   it starts rotating. */
+.envelope-card-inner {
+  position: relative;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.45s;
+}
+
+.envelope.is-open .envelope-card-inner {
+  transform: rotateY(180deg);
+}
+
+.envelope-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.envelope-face--back {
+  transform: rotateY(180deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .envelope-card,
+  .envelope-card-inner,
+  .envelope-front,
+  .envelope-seal {
+    transition: none;
+  }
+}
