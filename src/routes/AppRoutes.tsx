@@ -25,6 +25,10 @@ import { useAuth } from "../contexts/AuthContext";
 // route that uses it, instead of in every page's bundle.
 const Postcards = lazy(() => import("../pages/Postcards"));
 
+// The page a recipient lands on from the email. Public on purpose: whoever holds
+// the link holds the postcard, the same way a real one needs no account to read.
+const PostcardOpen = lazy(() => import("../pages/PostcardOpen"));
+
 function OAuthCallbackHandler() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -97,6 +101,7 @@ export default function AppRoutes() {
             <Route path="/diary/:id" element={<ProtectedDiaryDetailRoute />} />
             <Route path="/write" element={<ProtectedWriteRoute />} />
             <Route path="/postcards" element={<ProtectedPostcardsRoute />} />
+            <Route path="/postcard/open" element={<PostcardOpen />} />
             <Route path="/wod" element={<WinOfTheDay />} />
             <Route path="/about" element={<About />} />
             <Route path="/privacy" element={<Privacy />} />
